@@ -1,0 +1,206 @@
+schema_version: 1.2.0
+analyzed_at: 2026-04-20T15:13:41Z
+analyzed_commit: f2c575d96af9935a60945b80e2996f3cee01c486
+analyzed_by: claude-code
+mcp_section: null
+ai_cli_scripts:
+  - path: .dwt/ops-scripts/run-ceremony-step.sh
+    mode: headless
+    cli_tool: claude
+    summary: >-
+      Invokes `claude -p` headlessly per ceremony step with
+      --dangerously-skip-permissions, --session-id, --output-format json, and
+      --json-schema. Pipes the step body as stdin context, attaches the step
+      context file via --append-system-prompt-file, normalizes the JSON schema
+      via a bun helper (claude CLI silently rejects $schema/$defs metadata),
+      extracts .structured_output via jq, then commits and pushes the session
+      artifacts.
+    configures_mcp: false
+  - path: .dwt/ops-scripts/run-ceremony-step-loop.sh
+    mode: orchestrator
+    cli_tool: claude
+    summary: >-
+      Loops run-ceremony-step.sh across all numbered step folders under
+      _envelope/steps/, enforces clean-tree/non-main pre-checks, exports shared
+      CEREMONY_EXECUTION_ID/FOLDER so child step runs share identity, throttles
+      with STEP_DELAY_SECONDS, and at the end invokes a second headless
+      `claude` session (sonnet, --dangerously-skip-permissions) with PR
+      standards + template + git log/diff-stat to create a draft PR via `gh pr
+      create --draft`.
+    configures_mcp: false
+prompt_template_collections:
+  - path: .dwt/git-ops
+    location_type: snippet
+    template_count: 5
+    summary: >-
+      Reusable git-ops prompt fragments loaded by the ceremony scripts as
+      --append-system-prompt-file inputs. commit-standards.xml and
+      pr-standards.xml are <parameter>-wrapped CDATA blocks defining commit
+      types (feat|fix|refactor|chore|docs|test|perf|plan), body-bullet rules
+      ("every bullet must carry signal"), and PR conventions; accompanying
+      *-instruction.md and pull_request_template.md are consumed by the draft
+      PR creation step in the loop.
+    inferred_target_artifacts:
+      - commit_message
+      - other
+    snippet_extractions:
+      tech_stack_references: []
+      ai_tooling:
+        - claude CLI via --append-system-prompt-file (commit-standards.xml, pr-standards.xml)
+        - gh CLI for `gh pr create --draft` (PR orchestration step)
+      mandate_patterns:
+        - "ALL sessions produce a commit — write for both humans and downstream LLM agents consuming commits as gitContext"
+        - "Commit body bullets must capture intent/decisions, contract/schema changes, rejected trade-offs, and breaking changes; every bullet must carry signal, omit filler"
+        - "Plan sessions emphasize decisions made and options rejected; code sessions surface schema/contract changes explicitly"
+        - "Commit types restricted to: feat|fix|refactor|chore|docs|test|perf|plan"
+    metrics:
+      file_count: 5
+      line_count: 101
+      last_commit_date: '2026-04-20'
+      last_commit_sha: 33a17eb
+  - path: .dwt/templates/hitl
+    location_type: snippet
+    template_count: 1
+    summary: >-
+      Single snippet defining the HITL (human-in-the-loop) decision file
+      format: standardized action directives (IMPLEMENT/DEFER/REJECT/EXTEND/
+      APPLY/VALIDATE/DOCUMENT), question ID scheme (Q{section}.{number}),
+      checkbox-based answer capture, and required frontmatter (doc_type,
+      status, execution_id, session_id).
+    inferred_target_artifacts:
+      - other
+    snippet_extractions:
+      tech_stack_references:
+        - Markdown with YAML frontmatter
+      ai_tooling: []
+      mandate_patterns:
+        - "DEFER ≠ IGNORE — DEFER means 'yes, and add to backlog'; must capture the work item for later action"
+        - "Always include '(z) Other' as the last option in every HITL question"
+        - "Enclose strings with multiple consecutive underscores in backticks to prevent autoformatter corruption of markdown"
+        - "CLI only gates progression on frontmatter status: completed — do NOT include redundant answer tables"
+    metrics:
+      file_count: 1
+      line_count: 98
+      last_commit_date: '2026-04-20'
+      last_commit_sha: 33a17eb
+  - path: _ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps
+    location_type: playbook
+    template_count: 4
+    naming_convention: "NN-name/NN-name-{body,context}.txt"
+    summary: >-
+      Ceremony playbook: numbered step folders (01-code-structure-analysis,
+      02-conceptual-docs-analysis, 03-work-docs-analysis,
+      04-ai-process-inventory-analysis) each containing a body and context
+      file consumed by run-ceremony-step.sh. The body holds the task
+      instructions; the context file holds schema definitions, jagged inputs,
+      additional operations (e.g. git_commit), and execution_context params
+      injected via sed-substitution ({@session_id}, {@execution_id}, etc.)
+      before the claude call.
+    inferred_target_artifacts:
+      - analysis
+      - other
+    snippet_extractions:
+      tech_stack_references:
+        - "JSON Schema (draft/2020-12) for structured-output contracts"
+        - "YAML for analysis output artifacts"
+      ai_tooling:
+        - "claude CLI headless mode with --json-schema and --output-format json"
+        - "bun-based resolve-schema.ts to strip $schema/$defs metadata claude CLI rejects silently"
+        - "jq for extracting .structured_output from raw session JSON"
+      mandate_patterns:
+        - "Each ceremony step produces a structured-output artifact conforming to its declared schema and a git commit capturing the work"
+        - "Step folders must start with a two-digit prefix (NN-) to ensure deterministic execution order"
+        - "Pre-check: ceremony cannot run on main/master and requires a clean working tree with no untracked files"
+    metrics:
+      file_count: 12
+      line_count: 0
+      last_commit_date: '2026-04-20'
+claude_config:
+  claude_md_files:
+    - path: CLAUDE.md
+      scope: root
+      has_nontrivial_rules: true
+      line_count: 1
+    - path: AGENTS.md
+      scope: root
+      has_nontrivial_rules: true
+      line_count: 112
+  uses_hierarchical_claude_md: false
+  agents: []
+  commands:
+    - path: .claude/commands/qa.md
+      name: qa
+    - path: .claude/commands/review-pr.md
+      name: review-pr
+  skills: []
+  subagents: []
+  config_directories:
+    - .claude/
+    - .dwt/
+snippet_catalog:
+  tech_stack_signals:
+    - Markdown with YAML frontmatter
+    - JSON Schema (draft/2020-12) for structured-output contracts
+    - YAML for analysis output artifacts
+  ai_tooling_signals:
+    - claude CLI via --append-system-prompt-file (commit-standards.xml, pr-standards.xml)
+    - claude CLI headless mode with --json-schema and --output-format json
+    - gh CLI for `gh pr create --draft` (PR orchestration step)
+    - bun-based resolve-schema.ts to strip $schema/$defs metadata claude CLI rejects silently
+    - jq for extracting .structured_output from raw session JSON
+  analyzed_collection_count: 3
+ai_generated_doc_evidence:
+  readme_indicators: []
+  claude_md_indicators:
+    - "Root CLAUDE.md is a one-line @AGENTS.md import — uses the CLAUDE.md/AGENTS.md split convention, but no generation template was found in-repo"
+  conceptual_doc_indicators: []
+coverage:
+  has_mcp_config: false
+  has_ai_cli_scripts: true
+  has_prompt_templates: true
+  has_playbooks: true
+  has_snippets: true
+  has_claude_md: true
+  has_agents: false
+  has_commands: true
+  has_skills: false
+  has_subagents: false
+  has_ai_generated_doc_evidence: true
+patterns:
+  - "Ceremony-driven AI automation: numbered step folders under _ceremony_executions/{ID}/_envelope/steps/ are consumed by a generic run-ceremony-step.sh runner; body = stdin, context = --append-system-prompt-file, schema = --json-schema"
+  - "Headless claude invocations use --dangerously-skip-permissions, --session-id (UUID), --output-format json, and structured JSON schemas normalized via bun (claude CLI silently rejects $schema/$defs metadata)"
+  - "Orchestrator pattern: run-ceremony-step-loop.sh enforces clean-tree/non-main pre-checks, exports shared CEREMONY_EXECUTION_ID across all step children, throttles with STEP_DELAY_SECONDS, and ends with a draft-PR creation claude call"
+  - "CLAUDE.md → AGENTS.md redirect: root CLAUDE.md is a single-line @AGENTS.md import; all project rules (modification rules, key commands, release process, DB path gotchas) live in AGENTS.md"
+  - "Per-step git commit: each ceremony step commits its own artifacts with message `chore(repo-analysis): add <step> ceremony outputs [<session-id>]` then pushes — used as a safety boundary between steps"
+  - "Reusable git-ops prompt fragments in .dwt/git-ops/ (commit-standards.xml, pr-standards.xml, templates) are XML <parameter>-wrapped CDATA attached via --append-system-prompt-file rather than inlined per call"
+  - "Slash commands live in .claude/commands/ with argument-hint + description frontmatter and $ARGUMENTS interpolation (qa.md for MCP server QA, review-pr.md for PR review)"
+metrics:
+  file_count: 22
+  line_count: 845
+  last_commit_date: '2026-04-20'
+  last_commit_sha: 33a17eb
+notes: >-
+  Repository is light on AI process infrastructure compared to full DMF-style
+  repos: no .mcp.json or .mcps/ directory (mcp_section: null), no Claude Code
+  agents/skills/subagents, and no prompt-template library beyond the .dwt/
+  git-ops snippets and the ceremony playbook. The AI automation footprint is
+  almost entirely the two `.dwt/ops-scripts/*.sh` ceremony runners plus their
+  supporting schemas under `.dwt/schemas/`. Jagged inputs from Prompts 1
+  (code-structure) and 3 (conceptual-docs) were available and used: the code
+  analysis confirmed this is a Python project (not the React/Ink/LangGraph
+  stack referenced in typical DMF snippets — no mismatched snippets found
+  here to flag), and the conceptual-docs analysis confirmed no field_guide /
+  user_manual / glossary exist to cross-reference against generation
+  templates. Application-level LLM integration was found at
+  chunkhound/autodoc/prompts/, chunkhound/code_mapper/prompts/, and
+  chunkhound/services/prompts/ (txt/md/py files used by the running
+  product's autodoc/HyDE/synthesis features) — these are product source,
+  not AI tooling, and were intentionally excluded per the schema's scope.
+  CLAUDE.md line_count reflects the 1-line @AGENTS.md import; AGENTS.md is
+  catalogued as a second CLAUDE.md-equivalent entry since it is where the
+  non-trivial agent rules actually live. Ceremony-step file_count includes
+  body+context+parameterized-context for all 4 step folders; line_count
+  left at 0 as these are auto-generated per-invocation rather than
+  source-controlled templates. Deep-read extractions in snippet_extractions
+  were sourced from commit-standards.xml, hitt-question-format.md, and the
+  ceremony runner scripts (which define the playbook contract).

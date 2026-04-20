@@ -1,0 +1,42 @@
+{
+  "result": "Generated AI process inventory at _ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-ai-process-inventory.yaml.\n\nKey findings:\n- No MCP configuration (mcp_section: null). No .mcp.json, .mcps/, or .mcp-tool-sets/.\n- Two AI CLI scripts under .dwt/ops-scripts/: run-ceremony-step.sh (headless claude invocation with --json-schema, bun schema normalization, jq extraction, auto-commit/push) and run-ceremony-step-loop.sh (orchestrator enforcing clean-tree pre-checks, shared CEREMONY_EXECUTION_ID, and a final draft-PR creation claude call).\n- Three prompt collections: .dwt/git-ops (snippet, 5 files ΓÇö commit/PR standards as XML <parameter> CDATA attached via --append-system-prompt-file), .dwt/templates/hitl (snippet, 1 file ΓÇö HITL decision format with action-directive glossary), and _ceremony_executions/.../steps (playbook, 4 numbered step folders consumed by the runner).\n- Claude config: CLAUDE.md is a one-line @AGENTS.md import; AGENTS.md holds the non-trivial rules. Two slash commands in .claude/commands/ (qa.md, review-pr.md). No agents, skills, or subagents.\n- Deep-read extractions captured mandate patterns (commit body signal rules, ceremony pre-checks, DEFER Γëá IGNORE, NN- step ordering) and AI tooling signals (claude CLI flags, bun resolve-schema.ts, jq, gh CLI).\n- ai_generated_doc_evidence: only the CLAUDE.md ΓåÆ AGENTS.md split pattern observed; no generation templates for README or conceptual docs in-repo.\n- Jagged inputs from code + conceptual-docs analyses used to confirm tech-stack match (Python, not React/Ink) and to confirm absence of field guide/user manual/glossary to cross-reference.\n- Application-level LLM integration (chunkhound/*/prompts) explicitly excluded as product source per schema scope; noted in `notes`.",
+  "quality_telemetry": {
+    "status": "can_proceed",
+    "blockers": [],
+    "missing_information": [],
+    "clarification_questions": [],
+    "contradictions": [],
+    "assumptions": [
+      {
+        "assumption": "AGENTS.md is catalogued as a CLAUDE.md-equivalent file since CLAUDE.md imports it via @AGENTS.md and the non-trivial rules live there",
+        "evidence_from_prompt": "Contents of H:\\dev\\solutions\\chunkhound\\CLAUDE.md ... @AGENTS.md",
+        "impact": "If AGENTS.md should be excluded from claude_md_files, the inventory slightly overcounts Claude config files"
+      },
+      {
+        "assumption": "Ceremony step folders under _envelope/steps/ constitute a playbook collection",
+        "evidence_from_prompt": "INFERRED",
+        "impact": "If playbooks are meant strictly for reusable cross-repo templates (not per-execution generated material), this overcounts template_collections by one"
+      },
+      {
+        "assumption": "chunkhound/*/prompts directories are product source, not AI tooling, and should be excluded",
+        "evidence_from_prompt": "Only catalog the automation/tooling scripts. Note any excluded app-level AI integrations in `notes`.",
+        "impact": "Correct exclusion per schema scope; noted in notes field"
+      }
+    ],
+    "uncertainty_areas": [
+      "Whether the ceremony steps folder (generated per-execution) should be catalogued as a playbook vs. work_folder ΓÇö chose playbook because the NN- naming and body/context contract are the reusable pattern"
+    ],
+    "evidence_quotes": [
+      "cat \"${input_body_path}\" | claude -p ... --dangerously-skip-permissions --append-system-prompt-file ... --json-schema",
+      "Claude CLI silently rejects schemas with unfamiliar metadata ($schema, $defs, etc.)",
+      "All sessions produce a commit. Write for both human readers and downstream LLM agents consuming commits as gitContext.",
+      "DEFER Γëá IGNORE. DEFER means 'yes, and add to backlog'"
+    ],
+    "proposed_deliverables": [
+      "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-ai-process-inventory.yaml"
+    ],
+    "changed_files": [
+      "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-ai-process-inventory.yaml"
+    ]
+  }
+}
