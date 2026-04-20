@@ -1,0 +1,95 @@
+schema_version: "1.2.0"
+analyzed_at: "2026-04-20T15:11:01Z"
+analyzed_commit: "33c3148769183102d3b852cd726b0b7b585c0525"
+analyzed_by: "claude-opus-4-7 (ceremony OBR/20-REPO-ANALYSIS-01 step 03)"
+
+adr_section: null
+
+work_sections:
+  - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/"
+    name: "OBR Repository Analysis Ceremony"
+    convention: "NN-<step-slug>/ step folders under _envelope/steps/; per-step outputs as <step>-<uuid>-<kind>.json and top-level repository-structure-analysis-<scope>.yaml"
+    documents:
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-code.yaml"
+        type: "research"
+        title: "Repository Structure Analysis — Code"
+        date: "2026-04-20"
+        summary: "Step 01 output: structured inventory of the repository code organization."
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-conceptual-docs.yaml"
+        type: "research"
+        title: "Repository Structure Analysis — Conceptual Docs"
+        date: "2026-04-20"
+        summary: "Step 02 output: inventory of conceptual documentation (README, guides, reference material)."
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps/01-code-structure-analysis/01-code-structure-analysis-body.txt"
+        type: "research"
+        title: "Step 01 — Code Structure Analysis (body)"
+        date: "2026-04-20"
+        summary: "Prompt body for step 01 of the OBR repo analysis ceremony."
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps/02-conceptual-docs-analysis/02-conceptual-docs-analysis-body.txt"
+        type: "research"
+        title: "Step 02 — Conceptual Docs Analysis (body)"
+        date: "2026-04-20"
+        summary: "Prompt body for step 02 of the OBR repo analysis ceremony."
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps/03-work-docs-analysis/03-work-docs-analysis-body.txt"
+        type: "research"
+        title: "Step 03 — Work Docs Analysis (body)"
+        date: "2026-04-20"
+        summary: "Prompt body for step 03 of the OBR repo analysis ceremony (this step)."
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps/04-ai-process-inventory-analysis/04-ai-process-inventory-analysis-body.txt"
+        type: "research"
+        title: "Step 04 — AI Process Inventory Analysis (body)"
+        date: "2026-04-20"
+        summary: "Prompt body for step 04 of the OBR repo analysis ceremony."
+      - path: "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps/execution-context-values.yaml"
+        type: "other"
+        title: "Ceremony Execution Context Values"
+        date: "2026-04-20"
+        summary: "Shared execution context values (ceremony folder, execution_id, session_id) for all steps."
+    lifecycle:
+      active_count: 1
+      complete_count: 0
+      incoming_count: 0
+      parked_count: 0
+      blocked_count: 0
+      notes: "Ceremony uses sequential step folders (01..04) under _envelope/steps/ rather than status-subfolder lifecycle conventions. Single active ceremony execution at the root."
+    metrics:
+      file_count: 21
+      line_count: 4475
+      last_commit_date: "2026-04-20"
+      last_commit_sha: "33c3148"
+
+lifecycle_summary:
+  active_count: 1
+  complete_count: 0
+  incoming_count: 0
+  parked_count: 0
+  blocked_count: 0
+  notes: "Repository does not use conventional lifecycle subfolders (complete/, incoming/, _parked/). Only the in-progress OBR ceremony execution is tracked."
+
+coverage:
+  has_adrs: false
+  has_specs: false
+  has_rfcs: false
+  has_planning: false
+  has_meeting_notes: false
+
+patterns:
+  - "No traditional work docs directories (_work/, docs/projects/, project_docs/, _dmf-work/) exist in the repository."
+  - "No ADR directory or Architecture Decision Record convention in use."
+  - "Only work-docs-like artifacts are under _ceremony_executions/, produced by the DWT OBR ceremony tooling."
+  - "Ceremony outputs follow numbered step folders (NN-<slug>/) with paired body/context/output artifacts per step."
+  - "Root-level operational notes (operations/database_concurrency.md, RELEASING.md, MIGRATION_GUIDE.md, QWEN3_TUNING.md) serve as reference/conceptual docs rather than decision or planning records."
+
+metrics:
+  file_count: 21
+  line_count: 4475
+  last_commit_date: "2026-04-20"
+  last_commit_sha: "33c3148"
+
+notes: |-
+  The ChunkHound repository has no dedicated work documentation system (no ADRs, RFCs, specs, PRDs, or planning/task folders).
+  Project context is carried in AGENTS.md, CLAUDE.md, RELEASING.md, CHANGELOG.md, MIGRATION_GUIDE.md, and QWEN3_TUNING.md — all
+  classified as conceptual documentation in the step 02 inventory rather than work docs. The only work-docs-shaped artifacts
+  are the in-progress OBR repository analysis ceremony outputs under _ceremony_executions/OBR/20-REPO-ANALYSIS-01/, which are
+  cataloged here as a single 'research' work section. operations/ contains an operator note (database_concurrency.md) and
+  experiment scripts, treated as conceptual/reference content, not work documentation.
