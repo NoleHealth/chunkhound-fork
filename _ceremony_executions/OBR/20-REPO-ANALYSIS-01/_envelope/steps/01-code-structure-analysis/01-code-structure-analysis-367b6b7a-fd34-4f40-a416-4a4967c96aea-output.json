@@ -1,0 +1,45 @@
+{
+  "result": "Wrote repository code structure analysis to `_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-code.yaml` (schema v2.1.0). Classified as `single-module` Python repo (workspace_protocol: manual) with one top-level module `chunkhound/` and submodules for api/cli, mcp_server, parsers, providers, autodoc, code_mapper, daemon, and tests. Captured tech stack (Python 3.10-3.13, DuckDB, LanceDB, tree-sitter, MCP, Pydantic 2, hatchling/hatch-vcs), key files, repository-level files (workflows, pyproject, uv.lock, Makefile), build/dev commands, environment requirements, and quality gates (ruff, mypy, smoke + full pytest). Repo metrics: 648 files / ~169,785 LOC at commit 33a17eb (2026-04-20). Committed as `dadafb5`.",
+  "quality_telemetry": {
+    "status": "can_proceed",
+    "blockers": [],
+    "missing_information": [],
+    "clarification_questions": [],
+    "contradictions": [],
+    "assumptions": [
+      {
+        "assumption": "Metrics aggregated over .py files under chunkhound/ and tests/ (320 + 299 files; 99976 + 69809 lines) are representative totals for the repository.",
+        "evidence_from_prompt": "INFERRED",
+        "impact": "If source scope should include shell scripts, YAML, or other extensions, totals would be higher."
+      },
+      {
+        "assumption": "tests/ is modeled as a submodule of chunkhound for metric-tracking convenience rather than a separate top-level module.",
+        "evidence_from_prompt": "Submodule: Nested structure within a module",
+        "impact": "Reviewers expecting tests as a standalone module may want it promoted to top-level modules."
+      },
+      {
+        "assumption": "repository_type=single-module since only one pyproject.toml exists at root and one installable package.",
+        "evidence_from_prompt": "INFERRED",
+        "impact": "None if pyproject coverage is accurate."
+      }
+    ],
+    "uncertainty_areas": [
+      "Whether non-Python source files (shell scripts under scripts/, YAML fixtures) should be counted in module metrics."
+    ],
+    "evidence_quotes": [
+      "ChunkHound: Semantic and regex search tool for codebases with MCP integration",
+      "requires-python = \">=3.10,<3.14\"",
+      "chunkhound = \"chunkhound.api.cli.main:main\"",
+      "chunkhound-mcp = \"chunkhound.mcp_server.stdio:main_sync\"",
+      "source = \"vcs\""
+    ],
+    "proposed_deliverables": [
+      "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-code.yaml",
+      "git commit capturing the analysis"
+    ],
+    "changed_files": [
+      "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-code.yaml",
+      "_ceremony_executions/OBR/20-REPO-ANALYSIS-01/_envelope/steps/01-code-structure-analysis/01-code-structure-analysis-context.txt"
+    ]
+  }
+}
