@@ -1,0 +1,234 @@
+schema_version: 1.2.0
+analyzed_at: 2026-04-20T15:08:15Z
+analyzed_commit: 2e9666187d066f0b80bff6913bfed76a73eea24f
+analyzed_by: claude-opus-4-7
+root_readme:
+  path: README.md
+  type: readme
+  title: ChunkHound
+  purpose: Project landing README describing ChunkHound as local-first codebase intelligence with semantic/regex search and MCP integration; links to hosted docs site, lists features, requirements, installation, and quick start.
+  quality: adequate
+  last_modified: '2026-03-15'
+  audiences:
+    - end-users
+    - developers
+root_docs:
+  - path: CHANGELOG.md
+    type: changelog
+    title: Changelog
+    purpose: Version-by-version release notes for ChunkHound.
+    quality: comprehensive
+    last_modified: '2026-03-15'
+    audiences:
+      - end-users
+      - developers
+  - path: CONTRIBUTING.md
+    type: contributing
+    title: Contributing to ChunkHound
+    purpose: Contribution guide explaining workflow, quality standards, and AI-generated codebase expectations.
+    quality: adequate
+    last_modified: '2026-04-13'
+    audiences:
+      - contributors
+      - developers
+  - path: LICENSE
+    type: license
+    title: MIT License
+    purpose: MIT license text.
+    quality: adequate
+    last_modified: '2025-06-04'
+  - path: AGENTS.md
+    type: guide
+    title: ChunkHound LLM Context
+    purpose: Project-level instructions for AI coding agents covering modification rules, key commands, version management, publishing, and DB path gotchas.
+    quality: adequate
+    last_modified: '2026-04-15'
+    audiences:
+      - ai-agents
+      - developers
+  - path: CLAUDE.md
+    type: other
+    title: CLAUDE.md
+    purpose: One-line pointer that includes AGENTS.md (Claude Code entry point).
+    quality: stub
+    last_modified: '2026-04-15'
+    audiences:
+      - ai-agents
+  - path: MIGRATION_GUIDE.md
+    type: guide
+    title: ChunkHound Configuration Migration Guide
+    purpose: Guide for migrating from the legacy configuration system to the centralized configuration introduced in v2.2.0.
+    quality: adequate
+    last_modified: '2026-03-19'
+    audiences:
+      - end-users
+      - operators
+  - path: QWEN3_TUNING.md
+    type: guide
+    title: Qwen3 Batch Size Tuning Guide
+    purpose: Performance tuning guide for Qwen3 embedding/reranking models via Ollama or OpenAI-compatible endpoints.
+    quality: comprehensive
+    last_modified: '2025-10-21'
+    audiences:
+      - operators
+      - end-users
+  - path: RELEASING.md
+    type: guide
+    title: ChunkHound Release Guide
+    purpose: Authoritative release process covering OIDC trusted publishing on PyPI and the tag-driven GitHub Actions release workflows.
+    quality: adequate
+    last_modified: '2026-04-15'
+    audiences:
+      - contributors
+      - operators
+doc_sections:
+  - path: operations/
+    name: Operations
+    description: Operational notes and concurrency diagnostics for maintainers, plus pointers to standalone experiment scripts.
+    files:
+      - path: operations/README.md
+        type: readme
+        title: Operations experiments and diagnostics
+        purpose: Overview of the operations/ directory, linking to concurrency notes and experiment scripts.
+        quality: adequate
+        last_modified: '2026-01-08'
+        audiences:
+          - developers
+          - operators
+      - path: operations/database_concurrency.md
+        type: reference
+        title: Database Concurrency Operations
+        purpose: Experiment-backed reference documenting the single-owner SerialDatabaseProvider policy for DuckDB/LanceDB concurrency.
+        quality: comprehensive
+        last_modified: '2025-12-04'
+        audiences:
+          - developers
+          - operators
+    metrics:
+      file_count: 2
+      line_count: 232
+      last_commit_date: '2026-01-08'
+      last_commit_sha: 3bb7757
+  - path: chunkhound/providers/embeddings/
+    name: Embedding Providers Module
+    description: Module-level reference README explaining token-limit handling utilities shared across embedding providers.
+    files:
+      - path: chunkhound/providers/embeddings/README.md
+        type: reference
+        title: Embedding Provider Token Limit Handling
+        purpose: Developer reference for the shared token-limit-exceeded handling utilities used across embedding providers.
+        quality: adequate
+        last_modified: '2025-07-09'
+        audiences:
+          - developers
+    metrics:
+      file_count: 1
+      line_count: 89
+      last_commit_date: '2025-07-09'
+      last_commit_sha: e08430a
+  - path: chunkhound/autodoc/assets/
+    name: AutoDoc Site Template Assets
+    description: Template README shipped with the generated AutoDoc docs site.
+    files:
+      - path: chunkhound/autodoc/assets/README.md
+        type: other
+        title: '{{TITLE}} (AutoDoc template)'
+        purpose: Templated README for AutoDoc-generated documentation sites (not project documentation itself).
+        quality: stub
+        last_modified: '2026-01-08'
+        audiences:
+          - end-users
+    metrics:
+      file_count: 1
+      line_count: 11
+      last_commit_date: '2026-01-08'
+      last_commit_sha: 3bb7757
+  - path: tests/fixtures/
+    name: Test Fixtures
+    description: README documenting fake providers and fixtures used in ChunkHound's test suite.
+    files:
+      - path: tests/fixtures/README.md
+        type: reference
+        title: Test Fixtures for ChunkHound
+        purpose: Reference for fake providers and test fixtures enabling end-to-end testing without external APIs.
+        quality: comprehensive
+        last_modified: '2025-10-15'
+        audiences:
+          - developers
+          - contributors
+    metrics:
+      file_count: 1
+      line_count: 288
+      last_commit_date: '2025-10-15'
+      last_commit_sha: 23a407b
+  - path: tests/manual/
+    name: Manual Test Scripts
+    description: README for manual integration test scripts that hit real external APIs.
+    files:
+      - path: tests/manual/README.md
+        type: guide
+        title: Manual Test Scripts
+        purpose: Usage notes for manual tests that exercise real API integrations (requires keys).
+        quality: adequate
+        last_modified: '2025-11-12'
+        audiences:
+          - developers
+    metrics:
+      file_count: 1
+      line_count: 71
+      last_commit_date: '2025-11-12'
+      last_commit_sha: c06a1cb
+  - path: tests/unit/research/
+    name: Code Research Unit Tests
+    description: README for unit tests covering the deep code research feature.
+    files:
+      - path: tests/unit/research/README.md
+        type: reference
+        title: Code Research Unit Tests
+        purpose: Overview of unit tests for deep code research components.
+        quality: adequate
+        last_modified: '2025-10-28'
+        audiences:
+          - developers
+    metrics:
+      file_count: 1
+      line_count: 145
+      last_commit_date: '2025-10-28'
+      last_commit_sha: 84d490f
+api_docs:
+  has_openapi: false
+  has_graphql: false
+  has_grpc: false
+  spec_files: []
+coverage:
+  has_readme: true
+  has_contributing: true
+  has_architecture: false
+  has_api_docs: false
+  has_setup_guide: true
+  has_field_guide: false
+  has_glossary: false
+  has_user_guide: false
+readme_count: 7
+github_pages_url: https://chunkhound.github.io
+gaps:
+  - No in-repo docs/ directory; primary user documentation lives on the external chunkhound.github.io site.
+  - No architecture documentation in-repo (README links to hosted "Under the Hood" page).
+  - No glossary or field guide.
+  - No in-repo user guide or user manual (hosted externally).
+  - No API specification files (OpenAPI/GraphQL/gRPC).
+  - No CODE_OF_CONDUCT.md.
+  - No vision/strategy document.
+patterns:
+  - External documentation site hosted at chunkhound.github.io; in-repo docs are intentionally minimal.
+  - AGENTS.md (with CLAUDE.md re-export) as the canonical AI-agent instruction file.
+  - Root-level topic guides (MIGRATION_GUIDE.md, QWEN3_TUNING.md, RELEASING.md) instead of a docs/ hierarchy.
+  - Module-level README.md files scoped to operational concerns (operations/, providers/embeddings/) and test subtrees (tests/fixtures/, tests/manual/, tests/unit/research/).
+  - Operations directory pairs narrative notes (database_concurrency.md) with runnable experiment scripts.
+metrics:
+  file_count: 16
+  line_count: 2607
+  last_commit_date: '2026-04-15'
+  last_commit_sha: 51f7652
+notes: |
+  Repository is code-centric with documentation deliberately thin in-repo: the primary user-facing documentation is hosted at https://chunkhound.github.io (referenced from README.md). No docs/ directory exists. Root-level Markdown files combine reference (CHANGELOG), contribution (CONTRIBUTING), licensing (LICENSE), AI-agent instructions (AGENTS.md, CLAUDE.md which simply @-includes AGENTS.md), and topical guides (MIGRATION_GUIDE.md, QWEN3_TUNING.md, RELEASING.md). Conceptual documentation under chunkhound/ and tests/ is module-scoped reference. No AI-generation signals observed on individual documents (no "compiled from CLAUDE.md" markers or ceremony output on these docs). Ceremony execution artifacts under _ceremony_executions/ and Claude tooling under .claude/ were excluded per instructions. chunkhound/autodoc/assets/README.md is a Jinja-style template (contains {{TITLE}}); classified as type "other" and quality "stub" since it is not itself project documentation.
