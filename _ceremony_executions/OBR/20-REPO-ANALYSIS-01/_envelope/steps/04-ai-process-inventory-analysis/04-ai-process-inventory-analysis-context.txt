@@ -1604,25 +1604,25 @@ and `message` fields map directly to conventional commit format.
             <name>ceremony_execution_folder</name>
             <type>workspace_path</type>
             <purpose>Default workspace for all work-related artifacts during ceremony step execution. Output files without an explicit path prefix are written relative to this folder.</purpose>
-            <value>{@ceremony_execution_folder}</value>
+            <value>./_ceremony_executions/OBR/20-REPO-ANALYSIS-01</value>
         </context_param>
         <context_param>
             <name>execution_id</name>
             <type>runtime_value</type>
             <purpose>Unique execution identifier (UUID) for lineage tracking. This value is recorded in the step envelope for traceability.</purpose>
-            <value>{@execution_id}</value>
+            <value>8ac6b5d5-1625-4b31-9060-0eadc8749c6d</value>
         </context_param>
         <context_param>
             <name>session_id</name>
             <type>runtime_value</type>
             <purpose>Unique session identifier (UUID) for this ceremony step execution session.</purpose>
-            <value>{@session_id}</value>
+            <value>21c13663-361e-4232-b8ed-ef7296baa1b5</value>
         </context_param>
         <context_param>
             <name>current_utc_datetime</name>
             <type>runtime_value</type>
             <purpose>Session start UTC datetime. Use this value when populating date/datetime fields in generated outputs (e.g. analyzed_at) in document template template parameters.</purpose>
-            <value>{@current_utc_datetime}</value>
+            <value>2026-04-20T15:13:41Z</value>
         </context_param>
     </context_params>
   </execution_context>
