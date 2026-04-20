@@ -1,0 +1,14 @@
+<parameters>
+<parameter name="commit-standards" usage="All sessions produce a commit. Apply before every git commit.">
+<![CDATA[
+All sessions produce a commit.
+Write for both human readers and downstream LLM agents consuming commits as gitContext.
+Types: feat|fix|refactor|chore|docs|test|perf|plan
+Body bullets: intent/decisions · contracts or schemas changed · trade-offs rejected · breaking changes.
+Plan sessions: emphasize decisions made and options rejected.
+Code sessions: surface schema/contract changes explicitly.
+Every bullet must carry signal. Omit filler.
+]]>
+</parameter>
+</parameters>
+

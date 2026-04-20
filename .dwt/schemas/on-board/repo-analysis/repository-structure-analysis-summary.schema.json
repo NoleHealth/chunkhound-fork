@@ -1,0 +1,43 @@
+{
+  "$id": "https://github.com/dwt-core/schemas/repository-structure-analysis-summary.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "0.1.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this summary was generated."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that generated this summary."
+    },
+    "summary": {
+      "type": "string",
+      "description": "TODO: Replace with structured sections. Temporary free-text summary of cross-reference findings across all four analysis outputs. Expected eventual structure: repo classification, tech stack synthesis, doc coverage assessment, AI tooling adoption level, and downstream flags."
+    },
+    "notes": {
+      "description": "Observations, assumptions, or cross-reference mismatches discovered during synthesis. Note which of the four analysis inputs were available and which were missing.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "description": "Repository structure analysis summary (v0.1.0 — SHELL). Cross-reference synthesis of code-structure, work-docs, conceptual-docs, and ai-process-inventory outputs. Schema is intentionally minimal — requirements to be defined after reviewing real output examples from the four analysis prompts."
+}

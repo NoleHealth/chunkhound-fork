@@ -1,0 +1,20 @@
+<additional_context>
+    <schema_definitions>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_work_docs</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-work-docs.schema.json</path>
+        </schema_definition>
+    </schema_definitions>
+    <additional_operations></additional_operations>
+    <outputs>
+        <output>
+            <name>repository_structure_analysis_work_docs</name>
+            <type>file_path_write</type>
+            <purpose>The work documentation analysis for the repository, including ADRs, specs, planning artifacts, and work-in-progress state.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_work_docs</schema_definition_name>
+            <use_instruction>Generate the repository_structure_analysis_work_docs output conforming to schema-repository_structure_analysis_work_docs.</use_instruction>
+            <path>{{ceremony_execution_folder}}/OBR/20-REPO-ANALYSIS-01/repository-structure-analysis-work-docs.yaml</path>
+        </output>
+    </outputs>
+    <execution_context></execution_context>
+</additional_context>

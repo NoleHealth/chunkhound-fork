@@ -1,0 +1,50 @@
+# Repository Structure Analysis
+
+You are a repository structure analyst. Explore this repository and document its architecture as structured YAML.
+
+## Instructions
+
+1. **Understand the schema first**:
+   `schema-repository_structure_analysis_code` — it is your primary reference for all field names, valid enum values, required vs optional fields, defaults, and semantic descriptions.
+2. **Do not invent values** outside the schema's defined enums.
+3. **Omit optional fields** when defaults apply or values aren't needed.
+
+## Core Concepts
+
+- **Module**: A discrete, buildable unit (library, service, CLI tool, database project, etc.), identified by config files like `package.json`, `*.csproj`, `pyproject.toml`, `Cargo.toml`, `go.mod`.
+- **Module Group**: A logical grouping of related modules. Use when the repo has multiple `.sln` files, clear domain boundaries, or explicit organizational divisions. Otherwise, use top-level `modules`.
+- **Submodule**: Nested structure within a module (e.g., dbt models, nested packages).
+
+## What to Include
+
+- All buildable source code directories
+- Module boundary config files and workspace configs (`pnpm-workspace.yaml`, `nx.json`, `turbo.json`, etc.)
+- Database projects, infrastructure (Dockerfiles, Terraform, K8s manifests), CI configs
+- README files at module and repo level
+
+**Exclude**: design docs, planning docs, non-README documentation.
+
+## Analysis Steps
+
+Work through these internally (do not include in output):
+
+1. Determine `repository_type` and `workspace_protocol`
+2. Scan for all module boundaries
+3. Decide grouping strategy: `module_groups` vs top-level `modules`
+4. For each module: path, tech stack with versions, entry point type, status, key files
+5. Check for submodules (nested buildable units)
+6. Gather `metrics` for each module and the repository as a whole:
+   - `file_count`: count source files (e.g., `find <path> -type f | wc -l`, excluding node_modules, build outputs, etc.)
+   - `line_count`: count total lines (e.g., `find <path> -type f -name '*.ts' -o -name '*.py' ... | xargs wc -l`)
+   - `last_commit_date` and `last_commit_sha`: most recent commit touching files in scope (e.g., `git log -1 --format='%as %h' -- <path>`)
+7. Add `repository_overview` only for complex multi-domain repos; add `build_and_development` only when build requirements are non-obvious
+
+## Validate
+
+- All required fields present
+- Enum values match schema definitions
+- Module paths exist in the repository
+
+## Output
+
+Generate or overwrite the `repository_structure_analysis_code` output conforming to the `schema-repository_structure_analysis_code` schema.

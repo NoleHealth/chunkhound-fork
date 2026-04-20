@@ -1,0 +1,20 @@
+<additional_context>
+    <schema_definitions>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_code</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-code.schema.json</path>
+        </schema_definition>
+    </schema_definitions>
+   <additional_operations></additional_operations>
+    <outputs>
+        <output>
+            <name>repository_structure_analysis_code</name>
+            <type>file_path_write</type>
+            <purpose>Code structure analysis covering tech stack, modules, build tooling, and quality gates.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_code</schema_definition_name>
+            <use_instruction>Generate the repository_structure_analysis_code output conforming to schema-repository_structure_analysis_code.</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-code.yaml</path>
+        </output>
+    </outputs>
+<execution_context></execution_context>
+</additional_context>

@@ -1,0 +1,84 @@
+{
+  "$id": "https://github.com/dwt-core/schemas/git-context.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "branch": {
+      "type": "string",
+      "description": "Active branch or worktree branch at session start. Follows the naming convention: feat/YYYYMMDD-description or fix/YYYYMMDD-description."
+    },
+    "worktree": {
+      "description": "Worktree path if operating in a non-primary worktree. POSIX path relative to the repo root. Omit when working in the primary worktree.",
+      "type": "string"
+    },
+    "commits": {
+      "minItems": 0,
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,40}$",
+            "description": "Short (7-char) or full (40-char) commit SHA. Use the short form in display contexts; full form when referencing across repos."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "feat",
+              "fix",
+              "refactor",
+              "chore",
+              "docs",
+              "test",
+              "perf",
+              "plan"
+            ],
+            "description": "Conventional commit type for this commit."
+          },
+          "scope": {
+            "type": "string",
+            "description": "Primary module, schema, or component affected. Matches the parenthetical scope in conventional commit format: feat(scope): message."
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 72,
+            "description": "Imperative subject line — the signal-bearing summary. Max 72 chars. Written for an LLM reader: explicit about intent, not implementation mechanics."
+          },
+          "body": {
+            "description": "Structured bullet points carrying signal: intent, trade-offs, contracts changed, side effects. Omit filler. Each bullet must carry independent signal.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timestamp": {
+            "description": "ISO 8601 datetime of the commit. Optional — omit when not available.",
+            "type": "string"
+          },
+          "stepOrigin": {
+            "description": "Agent identifier or orchestration step that produced this commit. Set when operating as part of a multi-step orchestration pipeline. Allows downstream agents to trace which step introduced a given change.",
+            "type": "string"
+          }
+        },
+        "required": ["hash", "type", "scope", "message"],
+        "additionalProperties": false,
+        "description": "A single commit entry in the gitContext envelope. type/scope/message are the primary signal fields — read these first. body carries intent and trade-offs not expressible in the subject line. stepOrigin enables orchestration tracing across multi-agent pipelines."
+      },
+      "description": "Ordered recent commits, newest first. Up to 20 entries. Provides the agent with recent history as semantic context. Empty array is valid when the repo has no commits or history is unavailable."
+    },
+    "sessionType": {
+      "description": "Nature of the work session that produced this context. Informs downstream agents how to frame their output.",
+      "type": "string",
+      "enum": ["code", "plan", "review", "mixed"]
+    },
+    "repoRoot": {
+      "description": "POSIX workspace-relative root path. Never an absolute or Windows path. Example: \"dwt-core\" for a repo nested under a workspace. Omit when the repo is the workspace root.",
+      "type": "string"
+    }
+  },
+  "required": ["branch", "commits"],
+  "additionalProperties": false,
+  "description": "Portable git context envelope for LLM orchestration. Provider-agnostic substitute for native git inspection — attach to agent input payloads so downstream steps have structured commit history without shell access. Required fields: branch + commits. All other fields are contextual enrichment. Consumed by: CLAUDE.md instructions, commit message generation, PR description generation, and any orchestration step that needs to understand what work has been done."
+}

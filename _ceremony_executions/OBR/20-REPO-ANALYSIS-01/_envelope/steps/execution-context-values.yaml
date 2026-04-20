@@ -1,0 +1,10 @@
+execution_context:
+  resource_path_parameters:
+    schemas: "./dwt/schemas"
+    templates: "./dwt"
+  execution_parameters:
+    ceremony_execution_folder: "./_ceremony_executions/OBR/20-REPO-ANALYSIS-01"
+    execution_id: "2d0fefaf-4aaf-4cdc-a663-f23a261e495e"
+  runtime_parameters:
+    session_id: "e36358cc-c257-467a-940c-139567d521e1"
+    current_utc_datetime: "2024-06-05T12:34:56Z"

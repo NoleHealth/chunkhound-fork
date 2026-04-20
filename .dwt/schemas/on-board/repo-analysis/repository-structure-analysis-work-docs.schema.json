@@ -1,0 +1,556 @@
+{
+  "$id": "https://github.com/dwt-core/schemas/repository-structure-analysis-work-docs.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "1.2.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this analysis was performed."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that performed analysis."
+    },
+    "adr_section": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Path to ADR directory if found. Null if no ADR directory exists."
+            },
+            "convention": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ADR naming convention. Example: \"NNNN-title.md\""
+            },
+            "adrs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to ADR file relative to repository root."
+                  },
+                  "number": {
+                    "description": "ADR number if following numbered convention. Example: 1, 2, 3",
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "ADR title extracted from document."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "proposed",
+                      "accepted",
+                      "superseded",
+                      "deprecated",
+                      "rejected"
+                    ],
+                    "description": "Current status of this ADR."
+                  },
+                  "date": {
+                    "description": "Date of the decision. Format: YYYY-MM-DD",
+                    "type": "string"
+                  },
+                  "context_summary": {
+                    "description": "Brief summary of the context/problem this ADR addresses.",
+                    "type": "string"
+                  },
+                  "decision_summary": {
+                    "description": "Brief summary of the decision made.",
+                    "type": "string"
+                  },
+                  "superseded_by": {
+                    "description": "Path to ADR that supersedes this one, if applicable.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "path",
+                  "title",
+                  "status"
+                ],
+                "additionalProperties": false,
+                "description": "Architecture Decision Record."
+              },
+              "description": "All ADRs found."
+            },
+            "stats": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Total number of ADRs"
+                },
+                "accepted": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Number of accepted ADRs"
+                },
+                "superseded": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Number of superseded ADRs"
+                },
+                "deprecated": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Number of deprecated ADRs"
+                }
+              },
+              "required": [
+                "total",
+                "accepted",
+                "superseded",
+                "deprecated"
+              ],
+              "additionalProperties": false,
+              "description": "ADR statistics"
+            }
+          },
+          "required": [
+            "path",
+            "convention",
+            "adrs",
+            "stats"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "ADR section if the repository uses ADRs. Null if no ADRs found."
+    },
+    "work_sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to work docs directory relative to repository root. Examples: \"_work/tasks/\", \"docs/projects/\", \"project_docs/\""
+          },
+          "name": {
+            "type": "string",
+            "description": "Section name. Example: \"Tasks\", \"Features\", \"Project Board\""
+          },
+          "convention": {
+            "description": "Naming/numbering convention used if identified. Examples: \"YYYYMMDD-title/\", \"YYYY-MM-DD-title/\", \"NNNN-title.md\"",
+            "type": "string"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path to document file relative to repository root."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "adr",
+                    "rfc",
+                    "spec",
+                    "prd",
+                    "design",
+                    "plan",
+                    "meeting",
+                    "retrospective",
+                    "incident",
+                    "implementation-log",
+                    "request",
+                    "research",
+                    "epic",
+                    "backlog",
+                    "other"
+                  ],
+                  "description": "Work document type category."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Document title."
+                },
+                "status": {
+                  "description": "Document status if determinable.",
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "proposed",
+                    "accepted",
+                    "superseded",
+                    "deprecated",
+                    "rejected"
+                  ]
+                },
+                "date": {
+                  "description": "Document date or creation date. Format: YYYY-MM-DD",
+                  "type": "string"
+                },
+                "summary": {
+                  "description": "Brief summary of document contents.",
+                  "type": "string"
+                },
+                "related_work_units": {
+                  "description": "Related work unit IDs if referenced. Example: [\"WU-000123\"]",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "path",
+                "type",
+                "title"
+              ],
+              "additionalProperties": false,
+              "description": "Work documentation file."
+            },
+            "description": "Work documents in this section (non-ADR). Include documents from all lifecycle subfolders."
+          },
+          "adrs": {
+            "description": "ADRs in this section if it contains ADRs.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path to ADR file relative to repository root."
+                },
+                "number": {
+                  "description": "ADR number if following numbered convention. Example: 1, 2, 3",
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "title": {
+                  "type": "string",
+                  "description": "ADR title extracted from document."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "proposed",
+                    "accepted",
+                    "superseded",
+                    "deprecated",
+                    "rejected"
+                  ],
+                  "description": "Current status of this ADR."
+                },
+                "date": {
+                  "description": "Date of the decision. Format: YYYY-MM-DD",
+                  "type": "string"
+                },
+                "context_summary": {
+                  "description": "Brief summary of the context/problem this ADR addresses.",
+                  "type": "string"
+                },
+                "decision_summary": {
+                  "description": "Brief summary of the decision made.",
+                  "type": "string"
+                },
+                "superseded_by": {
+                  "description": "Path to ADR that supersedes this one, if applicable.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "path",
+                "title",
+                "status"
+              ],
+              "additionalProperties": false,
+              "description": "Architecture Decision Record."
+            }
+          },
+          "lifecycle": {
+            "description": "Folder-level lifecycle status counts. Populate when the section uses status subfolders (complete/, incoming/, _parked/, etc.).",
+            "type": "object",
+            "properties": {
+              "active_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items at the active/root level (not in any status subfolder). Includes folders with INPROGRESS- prefix."
+              },
+              "complete_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in completion folders (complete/, _complete/)."
+              },
+              "incoming_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in incoming/queue folders (incoming/, _incoming/, post-eval-incoming/)."
+              },
+              "parked_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in deferred folders (_parked/)."
+              },
+              "blocked_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in blocked state (blocked-* or BLOCKED-* prefix folders)."
+              },
+              "notes": {
+                "description": "Free-text clarification for edge cases, non-standard status folders, or ambiguous lifecycle states that do not fit the structured counts.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "active_count",
+              "complete_count",
+              "incoming_count",
+              "parked_count",
+              "blocked_count"
+            ],
+            "additionalProperties": false
+          },
+          "iteration_count": {
+            "description": "Number of iteration folders found (ITERATION_NN/, ITERATION-NN/). Signals iterative development pattern. Omit if no iterations found.",
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "metrics": {
+            "description": "Volume and temporal metrics for this section.",
+            "type": "object",
+            "properties": {
+              "file_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of documentation files in this scope."
+              },
+              "line_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Total lines across all documentation files in this scope."
+              },
+              "last_commit_date": {
+                "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+                "type": "string"
+              },
+              "last_commit_sha": {
+                "description": "Short SHA of the most recent commit touching files in this scope.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "file_count",
+              "line_count"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "path",
+          "name",
+          "documents"
+        ],
+        "additionalProperties": false,
+        "description": "Work documentation section."
+      },
+      "description": "Work documentation organized by section. Each section represents a top-level work docs directory found in the repository."
+    },
+    "lifecycle_summary": {
+      "description": "Aggregate lifecycle status counts across all work sections. Provides a quick signal of overall work-in-progress state.",
+      "type": "object",
+      "properties": {
+        "active_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items at the active/root level (not in any status subfolder). Includes folders with INPROGRESS- prefix."
+        },
+        "complete_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in completion folders (complete/, _complete/)."
+        },
+        "incoming_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in incoming/queue folders (incoming/, _incoming/, post-eval-incoming/)."
+        },
+        "parked_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in deferred folders (_parked/)."
+        },
+        "blocked_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in blocked state (blocked-* or BLOCKED-* prefix folders)."
+        },
+        "notes": {
+          "description": "Free-text clarification for edge cases, non-standard status folders, or ambiguous lifecycle states that do not fit the structured counts.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "active_count",
+        "complete_count",
+        "incoming_count",
+        "parked_count",
+        "blocked_count"
+      ],
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "has_adrs": {
+          "type": "boolean",
+          "description": "Repository uses ADRs"
+        },
+        "has_specs": {
+          "type": "boolean",
+          "description": "Has technical specifications"
+        },
+        "has_rfcs": {
+          "type": "boolean",
+          "description": "Has RFC/proposal process"
+        },
+        "has_planning": {
+          "type": "boolean",
+          "description": "Has planning documents"
+        },
+        "has_meeting_notes": {
+          "type": "boolean",
+          "description": "Has meeting notes"
+        }
+      },
+      "required": [
+        "has_adrs",
+        "has_specs",
+        "has_rfcs",
+        "has_planning",
+        "has_meeting_notes"
+      ],
+      "additionalProperties": false,
+      "description": "Work documentation coverage checklist."
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Work documentation patterns observed. Examples: \"Uses MADR format for ADRs\", \"Date-prefixed folders\", \"Iteration-based development (ITERATION_NN/)\", \"Lifecycle folders (complete/incoming/_parked)\""
+    },
+    "metrics": {
+      "description": "Aggregate volume and temporal metrics across all work documentation. Totals across all sections.",
+      "type": "object",
+      "properties": {
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of documentation files in this scope."
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Total lines across all documentation files in this scope."
+        },
+        "last_commit_date": {
+          "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+          "type": "string"
+        },
+        "last_commit_sha": {
+          "description": "Short SHA of the most recent commit touching files in this scope.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_count",
+        "line_count"
+      ],
+      "additionalProperties": false
+    },
+    "notes": {
+      "description": "Additional observations, assumptions, or mismatches discovered during analysis. Document any ambiguity in classification or conventions that could not be resolved.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "adr_section",
+    "work_sections",
+    "coverage",
+    "patterns"
+  ],
+  "additionalProperties": false,
+  "description": "Repository work documentation analysis output (v1.2.0). Catalogs ADRs, specs, planning docs, implementation logs, and project decision history. Tracks folder-level lifecycle status to signal work-in-progress state."
+}

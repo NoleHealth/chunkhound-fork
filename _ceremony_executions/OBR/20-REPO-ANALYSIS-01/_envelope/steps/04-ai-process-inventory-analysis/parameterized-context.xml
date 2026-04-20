@@ -1,0 +1,46 @@
+<additional_context>
+    <schema_definitions>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_code</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-code.schema.json</path>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_conceptual_docs</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-conceptual-docs.schema.json</path>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_ai_process_inventory</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-ai-process-inventory.schema.json</path>
+        </schema_definition>
+    </schema_definitions>
+    <additional_operations></additional_operations>
+    <outputs>
+        <output>
+            <name>repository_structure_analysis_ai_process_inventory</name>
+            <type>file_path_write</type>
+            <purpose>The AI process inventory analysis for the repository, including AI tools used, prompt patterns, and process integration.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_ai_process_inventory</schema_definition_name>
+            <use_instruction>Generate the repository_structure_analysis_ai_process_inventory output conforming to schema-repository_structure_analysis_ai_process_inventory.</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-ai-process-inventory.yaml</path>
+        </output>
+    </outputs>
+    <inputs>
+        <input>
+            <name>repository_structure_analysis_code</name>
+            <type>repo_analysis</type>
+            <purpose>Code structure analysis covering tech stack, modules, build tooling, and quality gates.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_code</schema_definition_name>
+            <use_instruction>Reference the repository_structure_analysis_code to understand the repository's tech stack, module boundaries, and build system. Use to validate snippet tech-stack signals and for cross-reference synthesis.</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-code.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_conceptual_docs</name>
+            <type>repo_analysis</type>
+            <purpose>Conceptual documentation inventory covering README, field guides, glossaries, user manuals, and API docs.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_conceptual_docs</schema_definition_name>
+            <use_instruction>Reference the repository_structure_analysis_conceptual_docs to understand the repository's documentation coverage. Use has_field_guide, has_user_manual, has_glossary flags to guide AI-generated doc evidence detection and for cross-reference synthesis.</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-conceptual-docs.yaml</path>
+        </input>
+    </inputs>
+    <execution_context></execution_context>
+</additional_context>

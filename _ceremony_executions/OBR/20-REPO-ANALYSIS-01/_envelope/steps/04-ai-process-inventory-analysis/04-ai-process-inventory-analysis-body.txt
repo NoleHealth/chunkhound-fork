@@ -1,0 +1,166 @@
+# AI Process Inventory
+
+You are a repository AI process analyst. Explore this repository and produce a structured YAML inventory of all AI tooling, automation scripts, prompt templates, and agent configuration — the infrastructure that enables AI-assisted development in this codebase.
+
+## Instructions
+
+1. **Understand the schema first**:
+   `schema-repository_structure_analysis_ai_process_inventory` — your primary reference for all field names, valid enum values, required vs optional fields, defaults, and semantic descriptions.
+2. **Do not invent values** outside the schema's defined enums.
+3. **Omit optional fields** when defaults apply or values aren't needed.
+4. **This is a pure inventory** — do not recommend improvements or evaluate quality. Document what exists.
+
+## Optional Context Inputs (Jagged Inputs)
+
+If prior analysis outputs are available, use them to guide discovery:
+
+- **`code_structure_analysis`** (from Prompt 1): Use the identified tech stack to validate snippet signals. If snippets reference React/Ink but the repo is C#, flag that mismatch in `notes` — those snippets are likely historical or pulled from a shared framework.
+- **`conceptual_docs_analysis`** (from Prompt 3): Use `has_field_guide`, `has_user_manual`, `has_glossary`, `has_readme` flags to guide AI-generated doc evidence detection. If a doc type is present AND a generation template exists, that is strong evidence.
+
+If neither is available, proceed with discovery only and note their absence in `notes`.
+
+## What to Discover
+
+### 1. MCP Configuration
+
+Scan for Model Context Protocol server configurations:
+
+- **Root MCP**: `.mcp.json` at repository root
+- **MCP directories**: `.mcps/`, `.mcp-tool-sets/` — these often contain multiple config files organized by purpose (discovery, minimal, research, etc.)
+- **Embedded MCP**: MCP config within `.claude/settings.json` or similar
+
+For each config file: note path, count servers, and briefly describe the purpose if identifiable from filename or contents. For files with many servers (>10), list a representative sample.
+
+### 2. AI CLI Scripts
+
+Search for shell scripts (`.sh`) that invoke AI CLI tools. The key signal is the script calling `claude`, `codex`, or similar AI CLI binaries.
+
+**How to find them**:
+
+```bash
+grep -rl 'claude\|codex' --include='*.sh' .
+```
+
+Then read the first 30-50 lines of each match to classify:
+
+- **headless**: Uses `claude -p` or similar non-interactive invocation, often with `--dangerously-skip-permissions`, `--output-format json`, stdin piping
+- **interactive**: Launches a user-facing AI CLI session, possibly with specific MCP configs or model settings
+- **orchestrator**: Multi-step script that chains AI calls, loops based on output, manages state across invocations (e.g., the main `adp-cli.sh` or `ccc-cli.sh` patterns)
+- **initializer**: Sets up environment, MCP servers, or session context before an AI call
+- **utility**: AI-related but doesn't invoke the CLI directly (e.g., session statistics, log parsing)
+
+**Important**: Distinguish AI automation scripts from application source code that integrates LLM APIs (e.g., a TypeScript file importing `@anthropic-ai/sdk` for product features). Only catalog the automation/tooling scripts. Note any excluded app-level AI integrations in `notes`.
+
+### 3. Prompt Templates & Playbooks
+
+Scan for organized collections of prompt templates:
+
+- **Template folders**: `_dmf-prompt-templates/`, `prompt-templates/`, `templates/`, or any directory primarily containing `.md` files used as prompts
+- **Playbooks**: Structured multi-step prompt sequences, typically numbered (`01-name.md`, `02-name.md`). Often found in `playbooks/`, `docs/dmf/playbooks/`, or similar
+- **Snippets**: Reusable prompt fragments for composition, often in `templates/snippets/`, `snippets/`, or `adp/snippets/`. These are the highest-value targets for extraction (see Section 5).
+- **Work folder prompts**: `.prompts/` subfolders within work documentation directories — note their presence and count but do not catalog individual files (these are numerous)
+- **`.prompt-templates/`**: Another common convention for template directories
+
+For each collection: note path, location type, template count, naming convention, summary, and `inferred_target_artifacts` (what artifact type the templates produce — infer from directory names, template names, and frontmatter `purpose` fields).
+
+### 4. Claude Agent Configuration
+
+Scan for Claude Code configuration:
+
+**CLAUDE.md files**:
+
+- Find all `CLAUDE.md` files in the repository (`find . -name 'CLAUDE.md'`)
+- For each: note path, scope, line count, and whether it contains non-trivial rules (custom conventions, tool restrictions, workflow instructions — not just basic project descriptions)
+- Determine if the repo uses hierarchical CLAUDE.md (files in subdirectories, not just root)
+
+**Agent/Command/Skill definitions**:
+
+- `.claude/agents/` — agent definition files (`.md`)
+- `.claude/commands/` — slash command definitions
+- `.claude/skills/` — skill definitions
+- Also check for alternate locations: `claude-code-config-dev/agents/`, or similar staging directories
+
+**Configuration directories**: Note all directories containing Claude configuration (`.claude/`, `claude-code-config-dev/`, etc.)
+
+### 5. Snippet Analysis (Deep Read)
+
+For each collection classified as `snippet` or `playbook`, **read the template files** and extract:
+
+**AI tooling references** — MCP server names, AI CLI tools, and specific tool-use directives embedded in instructions:
+
+- Named MCP servers (e.g., `mcp__sequential-thinking`, `mcp__docs-langchain`)
+- CLI tools with usage directives (e.g., "use psql CLI to query the database", "claude --dangerously-skip-permissions")
+- Tool-use mandates (e.g., "YOU MUST USE mcp\_\_docs-langchain to verify LangGraph v1 syntax")
+- Playwright, browser automation, or verification tool references
+
+**Tech stack references** — framework names, versions, and library-specific rules appearing in template instructions:
+
+- Named frameworks and versions (e.g., "React 19.1", "Ink 6.4", "LangGraph v1 TypeScript")
+- Language-specific patterns (e.g., "Python 3.11 type hints", "TypeScript strict mode")
+- Platform/infrastructure references (e.g., "PostgreSQL via psql CLI", "Next.js App Router")
+
+**Mandate patterns** — NEVER/ALWAYS/MANDATORY/CRITICAL rules embedded in instructions:
+
+- Rules that will be enforced every time a template is used
+- These are high-value signals for downstream tech stack inference
+- Capture as compact statements preserving intent (e.g., "NEVER use inline functions in JSX props — causes re-render cycles")
+
+**Scope**: Read all files for small snippet collections (<20 files). For larger playbook collections, read the template files — prioritize any with names suggesting readme, claude-md, field-guide, user-manual, or glossary targets.
+
+**Skip**: `work_folder` collections (`.prompts/` dirs) and template directories with >50 files — count and summarize only.
+
+Build `snippet_catalog` as the deduplicated cross-collection summary of all extracted signals.
+
+### 6. AI-Generated Document Evidence
+
+Detect templates that likely created standard documentation artifacts in this repo.
+
+**README evidence**: Look for templates with names/purposes like "update-readme", "create-readme", "step-22", or containing shields.io badge patterns, `{{app-name}}` template parameters, Quick Start structure. If the repo has a README: compare its structure against any found template.
+
+**CLAUDE.md hierarchy evidence**: Look for templates targeting CLAUDE.md hierarchy generation — signals include "hierarchical CLAUDE.md", scope-based output locations (`{{app-folder}}/src/CLAUDE.md`, `{{app-folder}}/src/components/CLAUDE.md`), "minimal root / focused areas" structural principles. If the repo uses hierarchical CLAUDE.md (`uses_hierarchical_claude_md: true`): compare against template.
+
+**Conceptual doc evidence**: For each of these doc types, look for generation templates:
+
+- `index.md` / `docs/index.md` — conceptual index generation templates
+- `glossary.md` — glossary generation templates
+- `user-manual.md` or `user-manual/` — user manual generation templates
+- `field-guide.md` or `field-guide/` — developer field guide generation templates
+
+If `conceptual_docs_analysis` jagged input is available: cross-reference `has_field_guide`, `has_user_manual`, `has_glossary` against found templates. Template present + doc present = strong evidence. Template present + doc absent = template may be unused or from a shared framework context.
+
+Populate `ai_generated_doc_evidence` with the findings.
+
+### 7. Metrics
+
+Gather volume and temporal metrics:
+
+- `file_count` and `line_count` for each template collection
+- Aggregate metrics across all AI process files
+- `last_commit_date` and `last_commit_sha` for recent activity signals
+
+## Analysis Steps
+
+Work through these internally (do not include in output):
+
+1. **Search for MCP configs**: `find . -name '*.mcp.json' -o -name '.mcp.json'` and check for `.mcps/`, `.mcp-tool-sets/` directories
+2. **Search for AI CLI scripts**: `grep -rl 'claude\|codex' --include='*.sh' .` — read each to classify mode
+3. **Search for prompt templates**: Look for directories named `prompts`, `templates`, `snippets`, `playbooks`, `_dmf-prompt-templates`, `.prompt-templates`, `.prompts`; classify each collection; identify `inferred_target_artifacts`
+4. **Search for CLAUDE.md files**: `find . -name 'CLAUDE.md'` — read first 20 lines of each to assess complexity
+5. **Search for agent/command definitions**: Check `.claude/agents/`, `.claude/commands/`, `.claude/skills/` and alternate locations
+6. **Deep-read snippets and playbooks**: For each `snippet`/`playbook` collection, read template files and extract AI tooling, tech stack references, and mandate patterns; populate `snippet_extractions` per collection and build `snippet_catalog`
+7. **Detect AI-generated doc evidence**: For each standard doc type (README, CLAUDE.md, user-manual, field-guide, glossary, index), check for corresponding generation templates and cross-reference with actual files; populate `ai_generated_doc_evidence`
+8. **Assess coverage**: Set boolean flags for each category including `has_snippets` and `has_ai_generated_doc_evidence`
+9. **Identify patterns**: CLI invocation patterns, MCP organization strategy, template naming conventions, snippet scope (repo-specific vs. framework-global)
+10. **Gather metrics**: File counts, line counts, git activity
+
+## Validate
+
+- All required fields present per schema
+- Enum values match schema definitions
+- File paths exist in the repository
+- Coverage flags are consistent with section contents
+- `snippet_catalog` populated if any `snippet_extractions` were produced
+
+## Output
+
+Generate or overwrite the `repository_structure_analysis_ai_process_inventory` output conforming to the `schema-repository_structure_analysis_ai_process_inventory` schema.

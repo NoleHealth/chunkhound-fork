@@ -1,0 +1,11 @@
+<additional_operations>
+    <purpose>Additional operations to be performed as part of this ceremony step execution. These operations are outside the core request but are necessary for proper documentation, version control, and tracking of the work done in this step.</purpose>
+    <operations>
+        <operation>
+            <name>git_commit</name>
+            <path>{{templates}}/git-ops/commit-instruction.md</path>
+            <context></context>
+            <purpose>Perform a git commit with the message generated in this step. This commit should capture the work done in this ceremony step following the instructions provided.</purpose>
+        </operation>
+    </operations>
+</additional_operations>

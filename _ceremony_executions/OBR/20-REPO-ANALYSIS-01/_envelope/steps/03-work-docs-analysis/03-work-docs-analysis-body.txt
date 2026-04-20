@@ -1,0 +1,76 @@
+# Work Documentation Inventory
+
+You are a repository work documentation analyst. Explore this repository and produce a structured YAML inventory of all work documentation — documents that track decisions, plans, specifications, implementation logs, and project evolution.
+
+## Instructions
+
+1. **Understand the schema first**:
+   `schema-repository_structure_analysis_work_docs` — your primary reference for all field names, valid enum values, required vs optional fields, defaults, and semantic descriptions.
+2. **Do not invent values** outside the schema's defined enums.
+3. **Omit optional fields** when defaults apply or values aren't needed.
+4. **This is a pure inventory** — do not recommend improvements or evaluate quality. Document what exists.
+
+## Core Concepts
+
+- **Work Documentation**: Documents that track _how and why_ the team made choices and planned work. Includes ADRs, specs, RFCs, implementation plans, feature tracking, epic definitions, research notes, work requests, and retrospectives.
+- **Work Section**: A top-level directory containing work documents. Each distinct work docs folder becomes one section.
+- **Lifecycle Folders**: Conventional subdirectories that indicate work item status: `complete/`, `_complete/`, `incoming/`, `_incoming/`, `_parked/`, `post-eval-incoming/`. Folder name prefixes like `BLOCKED-*` and `INPROGRESS-*` also signal status.
+- **Iteration Folders**: Subdirectories named `ITERATION_NN/` or `ITERATION-NN/` indicating iterative development cycles within a feature or task.
+
+## What to Include
+
+Work documentation directories and their contents. Common locations to scan:
+
+- `_work/tasks/`, `_work/initiatives/` (new standard)
+- `docs/projects/`, `docs/project-board/` (legacy pattern)
+- `project_docs/` (legacy pattern)
+- `_dmf-work/` (transitional pattern)
+- Any other directory primarily containing planning, specification, or decision documents
+
+**Include**: ADRs, specs, RFCs, PRDs, implementation plans, implementation summaries/logs, work requests, epic definitions, backlog files, research notes, retrospectives, meeting notes, handoff documents, feature tracking folders.
+
+**Exclude**:
+
+- Prompt templates and `.prompts/` subfolders (these belong to AI process inventory, not work docs). Note their presence in section patterns if observed, but do not catalog individual prompt files.
+- `.sessions/` and `.tracking/` subfolders (AI session artifacts, not work docs).
+- Source code, test files, configuration files.
+- Conceptual documentation (README, guides, tutorials, architecture reference docs, glossaries).
+
+## Analysis Steps
+
+Work through these internally (do not include in output):
+
+1. **Scan for work documentation directories** using the locations listed above. Also check for bespoke conventions specific to this repository.
+2. **For each directory found**, create a work section:
+   - Identify the naming convention (date-prefixed folders, numbered files, etc.)
+   - Catalog documents with type, title, status, date, and brief summary
+   - Count lifecycle subfolder items to populate the `lifecycle` object
+   - Count iteration folders if present (`iteration_count`)
+3. **Scan for ADRs** in dedicated ADR directories (adr/, docs/adr/, decisions/) or within work sections. Populate `adr_section` if a dedicated ADR location exists.
+4. **Assess coverage** — set boolean flags for what types of work docs exist.
+5. **Identify patterns** — naming conventions, folder structures, iteration usage, lifecycle folder presence.
+6. **Gather metrics** for each section and the repository as a whole:
+   - `file_count`: count documentation files (e.g., `find <path> -type f -name '*.md' -o -name '*.yaml' -o -name '*.txt' | wc -l`)
+   - `line_count`: count total lines (e.g., `find <path> -type f \( -name '*.md' -o -name '*.yaml' \) -exec cat {} + | wc -l`)
+   - `last_commit_date` and `last_commit_sha`: most recent commit touching files in scope (e.g., `git log -1 --format='%as %h' -- <path>`)
+7. **Compute lifecycle_summary** — aggregate lifecycle counts across all sections.
+
+## Document Cataloging Guidance
+
+When cataloging documents within a section, prioritize breadth over depth:
+
+- For sections with many documents (>50), catalog representative samples from each subfolder/category rather than every individual file. Note the total count in metrics.
+- For date-prefixed work folders (e.g., `20260308-standalone-pr/`), treat the folder as the work item — catalog its key documents (plans, specs, summaries) rather than every file within.
+- Extract dates from folder names or filenames when document-level dates aren't explicit.
+- Use the `other` type for documents that don't clearly fit the defined types.
+
+## Validate
+
+- All required fields present per schema
+- Enum values match schema definitions
+- Document paths exist in the repository
+- Lifecycle counts are consistent (active items are at root level, not in status subfolders)
+
+## Output
+
+Generate or overwrite the `repository_structure_analysis_work_docs` output conforming to the `schema-repository_structure_analysis_work_docs` schema.
