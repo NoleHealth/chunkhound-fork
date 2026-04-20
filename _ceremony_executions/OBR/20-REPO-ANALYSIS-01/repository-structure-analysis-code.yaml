@@ -1,0 +1,255 @@
+schema_version: 2.1.0
+analyzed_at: 2026-04-20T15:05:46Z
+analyzed_commit: 33a17eb76464c7d8264cabd263cfa31cdb79c674
+analyzed_by: claude-code
+repository_type: single-module
+workspace_protocol: manual
+modules:
+  - path: chunkhound/
+    name: ChunkHound
+    tech_stack: Python 3.10-3.13, DuckDB, LanceDB, tree-sitter, MCP, Pydantic 2, hatchling/hatch-vcs
+    entry_point_type: cli
+    status: alpha
+    key_files:
+      - path: pyproject.toml
+        purpose: Project metadata, dependencies, scripts, dynamic versioning via hatch-vcs
+      - path: chunkhound/__init__.py
+        purpose: Package init
+      - path: chunkhound/api/cli/main.py
+        purpose: CLI entry point (chunkhound command)
+      - path: chunkhound/mcp_server/stdio.py
+        purpose: MCP stdio server entry point (chunkhound-mcp command)
+      - path: chunkhound/mcp_server/tools.py
+        purpose: MCP tool definitions exposed to AI assistants
+      - path: chunkhound/database.py
+        purpose: Database abstraction layer
+      - path: chunkhound/parser.py
+        purpose: Code parsing orchestration
+      - path: chunkhound/parsers/
+        purpose: Tree-sitter based language parsers and mappings
+      - path: chunkhound/providers/
+        purpose: Pluggable database, embedding, and LLM providers
+      - path: chunkhound/services/
+        purpose: Core application services
+      - path: chunkhound/core/
+        purpose: Core domain models and types
+      - path: chunkhound/registry/
+        purpose: Service and provider registry/DI
+      - path: chunkhound/interfaces/
+        purpose: Protocol/interface definitions
+    metrics:
+      file_count: 320
+      line_count: 99976
+      last_commit_date: '2026-04-20'
+      last_commit_sha: f34b2b3
+    submodules:
+      - path: chunkhound/api/cli/
+        tech_stack: Python, argparse/typer-style CLI
+        entry_point_type: cli
+        status: alpha
+        key_files:
+          - path: chunkhound/api/cli/main.py
+            purpose: CLI main entrypoint
+      - path: chunkhound/mcp_server/
+        tech_stack: Python, MCP protocol (stdio + HTTP)
+        entry_point_type: api
+        status: alpha
+        key_files:
+          - path: chunkhound/mcp_server/stdio.py
+            purpose: MCP stdio transport server
+          - path: chunkhound/mcp_server/tools.py
+            purpose: MCP tool handlers
+      - path: chunkhound/parsers/
+        tech_stack: Python, tree-sitter multi-language
+        entry_point_type: library
+        status: alpha
+        key_files:
+          - path: chunkhound/parsers/universal_parser.py
+            purpose: Generic tree-sitter parser driver
+          - path: chunkhound/parsers/parser_factory.py
+            purpose: Factory dispatching per-language parsers
+      - path: chunkhound/providers/
+        tech_stack: Python, DuckDB, LanceDB, OpenAI/Anthropic/VoyageAI/Gemini SDKs
+        entry_point_type: library
+        status: alpha
+        key_files:
+          - path: chunkhound/providers/database/
+            purpose: Database provider implementations (DuckDB, LanceDB)
+          - path: chunkhound/providers/embeddings/
+            purpose: Embedding provider implementations
+          - path: chunkhound/providers/llm/
+            purpose: LLM provider implementations
+      - path: chunkhound/autodoc/
+        tech_stack: Python
+        entry_point_type: library
+        status: alpha
+        key_files:
+          - path: chunkhound/autodoc/
+            purpose: Automatic documentation generation prompts and assets
+      - path: chunkhound/code_mapper/
+        tech_stack: Python
+        entry_point_type: library
+        status: alpha
+        key_files:
+          - path: chunkhound/code_mapper/
+            purpose: Code mapping logic with prompts
+      - path: chunkhound/daemon/
+        tech_stack: Python
+        entry_point_type: worker
+        status: alpha
+        key_files:
+          - path: chunkhound/daemon/
+            purpose: Background daemon for file watching/indexing
+      - path: tests/
+        name: Test Suite
+        tech_stack: Python, pytest, pytest-asyncio, pytest-timeout, pytest-rerunfailures
+        entry_point_type: none
+        status: alpha
+        key_files:
+          - path: tests/conftest.py
+            purpose: Pytest fixtures and configuration
+          - path: tests/test_smoke.py
+            purpose: Mandatory smoke tests gate for commits
+          - path: tests/SMOKE_TESTS.md
+            purpose: Smoke test documentation
+        metrics:
+          file_count: 299
+          line_count: 69809
+          last_commit_date: '2026-04-20'
+          last_commit_sha: f34b2b3
+module_groups: []
+key_files:
+  - path: README.md
+    purpose: Project overview and quick start
+  - path: AGENTS.md
+    purpose: LLM/agent context and modification rules (referenced by CLAUDE.md)
+  - path: CLAUDE.md
+    purpose: Claude Code project instructions (imports AGENTS.md)
+  - path: CONTRIBUTING.md
+    purpose: Contribution guidelines
+  - path: RELEASING.md
+    purpose: Release process (automated via GitHub Actions OIDC)
+  - path: MIGRATION_GUIDE.md
+    purpose: User migration guide across versions
+  - path: CHANGELOG.md
+    purpose: Release changelog
+  - path: QWEN3_TUNING.md
+    purpose: Qwen3 model tuning notes
+  - path: Makefile
+    purpose: Developer convenience targets
+  - path: pyproject.toml
+    purpose: Build/packaging config, dependencies, tool config
+  - path: uv.lock
+    purpose: uv resolver lockfile
+  - path: requirements.txt
+    purpose: Runtime pip requirements
+  - path: requirements-dev.txt
+    purpose: Development pip requirements
+  - path: requirements-lock.txt
+    purpose: Pinned pip requirements
+  - path: scripts/update_version.py
+    purpose: Version bump utility (git-tag driven)
+  - path: scripts/build.sh
+    purpose: Build script
+  - path: scripts/dev-setup.sh
+    purpose: Developer environment setup
+  - path: scripts/prepare_release.sh
+    purpose: Release preparation helper (CI owns publish)
+  - path: .github/workflows/release.yml
+    purpose: PyPI release workflow (OIDC Trusted Publishing)
+  - path: .github/workflows/release-rc.yml
+    purpose: Pre-release (alpha/beta/RC) publishing workflow
+  - path: .github/workflows/smoke-tests.yml
+    purpose: Smoke test CI workflow
+  - path: .github/workflows/deprecate.yml
+    purpose: Deprecation workflow
+  - path: .dockerignore
+    purpose: Docker build exclusions
+  - path: LICENSE
+    purpose: MIT License
+repository_overview:
+  description: ChunkHound is a local-first codebase intelligence CLI and MCP server that indexes codebases into DuckDB/LanceDB using tree-sitter parsers and exposes semantic and regex search to AI assistants. Single-module Python project built entirely by AI agents.
+  architectural_patterns:
+    - provider/plugin architecture
+    - pipeline processing (parse → chunk → embed → index → search)
+    - MCP protocol server
+    - dependency injection via registry
+  domains:
+    - name: Parsing
+      components:
+        - chunkhound/parsers
+        - chunkhound/parser.py
+        - chunkhound/code_mapper
+    - name: Storage
+      components:
+        - chunkhound/providers/database
+        - chunkhound/database.py
+        - chunkhound/database_factory.py
+    - name: Embeddings & LLM
+      components:
+        - chunkhound/providers/embeddings
+        - chunkhound/providers/llm
+        - chunkhound/embeddings.py
+        - chunkhound/llm_manager.py
+    - name: Interfaces
+      components:
+        - chunkhound/api/cli
+        - chunkhound/mcp_server
+    - name: Services
+      components:
+        - chunkhound/services
+        - chunkhound/daemon
+        - chunkhound/autodoc
+  key_technologies:
+    - Python 3.10-3.13
+    - DuckDB
+    - LanceDB / pylance
+    - tree-sitter (multi-language)
+    - Model Context Protocol (MCP)
+    - Pydantic 2 / pydantic-settings
+    - OpenAI, Anthropic, VoyageAI, Google GenAI SDKs
+    - hatchling + hatch-vcs
+    - uv package manager
+build_and_development:
+  build_systems:
+    - uv
+    - hatchling
+  recommended_ides:
+    - VS Code
+  development_commands:
+    uv run chunkhound index: Index a directory into the local database
+    uv run chunkhound mcp: Start MCP stdio server
+    uv run chunkhound mcp http --port 5173: Start MCP HTTP server
+    uv run pytest tests/test_smoke.py -v -n auto: Mandatory smoke tests before commits
+    uv run pytest tests/ -v: Full test suite (mandatory before pushing)
+    uv run ruff check chunkhound: Lint
+    uv run ruff format chunkhound: Format
+    uv run mypy chunkhound: Type check
+    uv run scripts/update_version.py: Create version tag
+  environment_requirements:
+    - Python >=3.10,<3.14
+    - uv package manager
+  quality_gates:
+    - gate: lint
+      command: uv run ruff check chunkhound
+      description: Ruff lint check
+    - gate: type-check
+      command: uv run mypy chunkhound
+      description: Mypy static type check
+    - gate: smoke-tests
+      command: uv run pytest tests/test_smoke.py -v -n auto
+      description: Mandatory smoke tests before any commit
+    - gate: full-tests
+      command: uv run pytest tests/ -v
+      description: Full pytest suite, mandatory before pushing a PR
+metrics:
+  file_count: 648
+  line_count: 169785
+  last_commit_date: '2026-04-20'
+  last_commit_sha: 33a17eb
+notes: |
+  Single-module Python package "chunkhound" with a large flat internal structure organized
+  by concern (parsers, providers, services, mcp_server, api/cli). Dynamic version via
+  hatch-vcs from git tags. Releases to PyPI are automated via GitHub Actions OIDC trusted
+  publishing — do not run `uv publish` manually. Tests directory is not a separately
+  buildable module but is modeled as a submodule for metric tracking.
