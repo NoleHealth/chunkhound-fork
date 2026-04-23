@@ -1,6 +1,4 @@
 {
-  "$id": "https://github.com/dwt-core/schemas/quality-telemetry-inputs-with-result.schema.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "result": {

@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "max_assumptions_before_block": {
+          "type": "number",
+          "const": 3,
+          "description": "Maximum number of assumptions allowed before blocking."
+        },
+        "max_uncertainty_areas": {
+          "type": "number",
+          "const": 2,
+          "description": "Maximum number of uncertainty areas allowed before blocking."
+        },
+        "max_clarification_questions": {
+          "type": "number",
+          "const": 0,
+          "description": "Maximum number of clarification questions allowed before blocking."
+        }
+      },
+      "required": [
+        "max_assumptions_before_block",
+        "max_uncertainty_areas",
+        "max_clarification_questions"
+      ],
+      "additionalProperties": false,
+      "description": "Quality telemetry thresholds (CLI-side only)"
+    }
+  },
+  "required": [
+    "thresholds"
+  ],
+  "additionalProperties": false,
+  "description": "Quality telemetry rules for CLI-side evaluation. These thresholds are applied by the orchestrator, not injected into the LLM prompt."
+}

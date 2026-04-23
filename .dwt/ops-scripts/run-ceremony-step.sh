@@ -49,7 +49,7 @@ input_body_path="${envelope_folder}/${current_step_folder}${input_body_file}"
 input_context_file="${current_step}-context.txt"
 input_context_path="${envelope_folder}/${current_step_folder}${input_context_file}"
 
-structured_output_schema_file="./.dwt/schemas/quality-gate/quality-telemetry-inputs-with-result.schema.json"
+structured_output_schema_file="./.dwt/schemas/quality-gate/llm-output/quality-telemetry-with-result.schema.json"
 
 raw_output_file="${envelope_folder}/${current_step_folder}${current_step}-${sessionID}-raw.json"
 output_file="${envelope_folder}/${current_step_folder}${current_step}-${sessionID}-output.json"

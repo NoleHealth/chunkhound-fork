@@ -1,0 +1,129 @@
+{
+  "type": "object",
+  "properties": {
+    "result": {
+      "type": "string",
+      "description": "The domain-specific output"
+    },
+    "gate_rules": {
+      "type": "object",
+      "properties": {
+        "thresholds": {
+          "type": "object",
+          "properties": {
+            "max_assumptions_before_block": {
+              "type": "number",
+              "const": 8,
+              "description": "Maximum number of assumptions allowed before blocking. If you make more than this many assumptions, the request should be clarified."
+            },
+            "confidence_threshold": {
+              "type": "string",
+              "const": "high",
+              "description": "Minimum confidence level required to proceed. Lower confidence triggers HITL intervention."
+            },
+            "max_uncertainty_areas": {
+              "type": "number",
+              "const": 2,
+              "description": "Maximum number of uncertainty areas allowed before requiring clarification."
+            }
+          },
+          "required": [
+            "max_assumptions_before_block",
+            "confidence_threshold",
+            "max_uncertainty_areas"
+          ],
+          "additionalProperties": false,
+          "description": "Gate thresholds — these rules determine if the response can proceed or requires intervention"
+        },
+        "reported_values": {
+          "type": "object",
+          "properties": {
+            "is_actionable": {
+              "description": "Can the request be acted upon? False if request is too vague, contradictory, or missing critical requirements.",
+              "type": "boolean"
+            },
+            "clarity": {
+              "description": "How clear is the request? 'clear' = well-defined, 'partial' = some gaps, 'ambiguous' = cannot determine intent.",
+              "type": "string",
+              "enum": [
+                "clear",
+                "partial",
+                "ambiguous"
+              ]
+            },
+            "missing_requirements": {
+              "description": "What information or requirements are missing that would be needed to proceed?",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "blockers": {
+              "description": "Explicit show-stoppers preventing any work (contradictions, impossibilities, undefined scope).",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assumptions_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Number of assumptions made during work. 0 if no work was attempted."
+            },
+            "confidence_level": {
+              "type": "string",
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "description": "Confidence in the response. 'low' if request is ambiguous or blockers exist."
+            },
+            "uncertainty_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Number of areas where outcome is uncertain."
+            },
+            "assumptions_list": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of assumptions made during work."
+            },
+            "uncertainty_areas": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of areas with uncertain outcomes."
+            }
+          },
+          "required": [
+            "assumptions_count",
+            "confidence_level",
+            "uncertainty_count",
+            "assumptions_list",
+            "uncertainty_areas"
+          ],
+          "additionalProperties": false,
+          "description": "Values reported by LLM for gate evaluation"
+        }
+      },
+      "required": [
+        "thresholds",
+        "reported_values"
+      ],
+      "additionalProperties": false,
+      "description": "Gate rules with thresholds and reported values"
+    }
+  },
+  "required": [
+    "result",
+    "gate_rules"
+  ],
+  "additionalProperties": false,
+  "description": "Complete LLM response with domain result and gate rules. The CLI evaluates gate_rules.reported_values against gate_rules.thresholds."
+}

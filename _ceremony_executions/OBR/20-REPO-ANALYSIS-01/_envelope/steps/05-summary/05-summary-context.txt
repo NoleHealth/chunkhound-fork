@@ -1,0 +1,2728 @@
+## Context References
+
+```xml
+<additional_context>
+    <schema_definitions>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_summary</name>
+            <content><![CDATA[{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "0.2.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this summary was generated."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that generated this summary."
+    },
+    "input_coverage": {
+      "type": "object",
+      "properties": {
+        "code_structure": {
+          "type": "string",
+          "enum": [
+            "present",
+            "missing",
+            "partial"
+          ],
+          "description": "Presence of the Step-1 code-structure analysis input. Use \"partial\" when the file exists but key sections (modules, metrics) are empty or clearly truncated."
+        },
+        "work_docs": {
+          "type": "string",
+          "enum": [
+            "present",
+            "missing",
+            "partial"
+          ],
+          "description": "Presence of the Step-2 work-docs analysis input."
+        },
+        "conceptual_docs": {
+          "type": "string",
+          "enum": [
+            "present",
+            "missing",
+            "partial"
+          ],
+          "description": "Presence of the Step-3 conceptual-docs analysis input."
+        },
+        "ai_process_inventory": {
+          "type": "string",
+          "enum": [
+            "present",
+            "missing",
+            "partial"
+          ],
+          "description": "Presence of the Step-4 AI process inventory input."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "description": "Overall confidence in this summary. Rule of thumb: 4/4 present -> high; 3/4 or partials -> medium; 2/4 or fewer -> low."
+        },
+        "notes": {
+          "description": "Short free-form notes on what was missing or partial and why it matters for downstream consumers.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code_structure",
+        "work_docs",
+        "conceptual_docs",
+        "ai_process_inventory",
+        "confidence"
+      ],
+      "additionalProperties": false,
+      "description": "Coverage and confidence for the four upstream repo-analysis inputs. Signal blocks below are omitted when their upstream input is missing."
+    },
+    "code_signals": {
+      "type": "object",
+      "properties": {
+        "repository_type": {
+          "description": "Verbatim value from code analysis (e.g. \"monorepo\", \"single-module\", \"multi-module\").",
+          "type": "string"
+        },
+        "module_count": {
+          "description": "Number of modules reported by the code analysis.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "entry_point_types": {
+          "default": [],
+          "description": "Deduplicated entry-point types across modules (e.g. [\"cli\",\"web\",\"desktop\",\"library\",\"api\",\"worker\",\"none\"]). Use the verbatim strings from the code analysis; do not re-normalize.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "primary_languages": {
+          "default": [],
+          "description": "Primary programming languages detected across modules, ordered by prominence.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "key_technologies": {
+          "default": [],
+          "description": "Notable frameworks / libraries / runtimes lifted from repository_overview.key_technologies or modules[].tech_stack.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modules_by_status": {
+          "description": "Histogram of module statuses. Example: { \"alpha\": 2, \"beta\": 1, \"production\": 3 }.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "file_count": {
+          "description": "Total file count reported by the code analysis metrics.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "line_count": {
+          "description": "Total line count reported by the code analysis metrics.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "last_commit_date": {
+          "description": "Most recent commit date touching code (YYYY-MM-DD).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_point_types",
+        "primary_languages",
+        "key_technologies"
+      ],
+      "additionalProperties": false,
+      "description": "High-signal fields lifted from repository-structure-analysis-code.yaml. Omit the entire block when the code analysis input is missing."
+    },
+    "conceptual_docs_signals": {
+      "type": "object",
+      "properties": {
+        "root_readme_quality": {
+          "description": "Quality rating of the root README (e.g. \"comprehensive\", \"adequate\", \"minimal\", \"stub\").",
+          "type": "string"
+        },
+        "doc_section_count": {
+          "default": 0,
+          "description": "Number of doc_sections reported by the conceptual-docs analysis.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "readme_count": {
+          "default": 0,
+          "description": "Total README.md files discovered across the repo.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "has_readme": {
+              "type": "boolean"
+            },
+            "has_field_guide": {
+              "type": "boolean"
+            },
+            "has_user_manual": {
+              "type": "boolean"
+            },
+            "has_glossary": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "has_readme",
+            "has_field_guide",
+            "has_user_manual",
+            "has_glossary"
+          ],
+          "additionalProperties": false,
+          "description": "Coverage flags lifted verbatim from the conceptual-docs analysis."
+        },
+        "quality_distribution": {
+          "description": "Histogram of per-file quality ratings. Example: { \"comprehensive\": 12, \"adequate\": 3, \"minimal\": 1, \"stub\": 0 }.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "appears_ai_generated_count": {
+          "default": 0,
+          "description": "Count of doc files flagged appears_ai_generated=true. 0 when the flag is not used by the upstream output.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "github_pages_url": {
+          "description": "GitHub Pages URL if detected in the root README.",
+          "type": "string"
+        },
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "last_commit_date": {
+          "description": "Most recent commit date touching conceptual docs (YYYY-MM-DD).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_section_count",
+        "readme_count",
+        "appears_ai_generated_count"
+      ],
+      "additionalProperties": false,
+      "description": "High-signal fields lifted from repository-structure-analysis-conceptual-docs.yaml. Omit the entire block when the conceptual-docs analysis input is missing."
+    },
+    "work_docs_signals": {
+      "type": "object",
+      "properties": {
+        "adr_present": {
+          "default": false,
+          "description": "True when the work-docs analysis reports a non-null adr_section.",
+          "type": "boolean"
+        },
+        "adr_count": {
+          "default": 0,
+          "description": "Count of ADRs reported by the work-docs analysis.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "work_section_count": {
+          "default": 0,
+          "description": "Number of work_sections reported by the work-docs analysis.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "conventions_observed": {
+          "default": [],
+          "description": "Naming / organization conventions lifted from work_sections[].naming_convention or the upstream patterns list. Verbatim strings.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lifecycle_summary": {
+          "type": "object",
+          "properties": {
+            "active": {
+              "default": 0,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "complete": {
+              "default": 0,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "incoming": {
+              "default": 0,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "parked": {
+              "default": 0,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "blocked": {
+              "default": 0,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "active",
+            "complete",
+            "incoming",
+            "parked",
+            "blocked"
+          ],
+          "additionalProperties": false,
+          "description": "Lifecycle counts aggregated across work_sections. Mirrors the upstream lifecycle_summary shape."
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "has_adrs": {
+              "type": "boolean"
+            },
+            "has_specs": {
+              "type": "boolean"
+            },
+            "has_epics": {
+              "type": "boolean"
+            },
+            "has_implementation_logs": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "has_adrs",
+            "has_specs",
+            "has_epics",
+            "has_implementation_logs"
+          ],
+          "additionalProperties": false,
+          "description": "Coverage flags lifted verbatim from the work-docs analysis."
+        },
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "last_commit_date": {
+          "description": "Most recent commit date touching work docs (YYYY-MM-DD). Proxy for WIP recency.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "adr_present",
+        "adr_count",
+        "work_section_count",
+        "conventions_observed"
+      ],
+      "additionalProperties": false,
+      "description": "High-signal fields lifted from repository-structure-analysis-work-docs.yaml. Omit the entire block when the work-docs analysis input is missing."
+    },
+    "ai_process_signals": {
+      "type": "object",
+      "properties": {
+        "mcp_server_count": {
+          "default": 0,
+          "description": "Total MCP servers summed across mcp_section[].servers. 0 when mcp_section is absent.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "ai_cli_script_count": {
+          "default": 0,
+          "description": "Number of entries in ai_cli_scripts / cli_scripts_section.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "ai_cli_script_modes": {
+          "default": [],
+          "description": "Deduplicated mode values across AI CLI scripts (e.g. [\"headless\",\"interactive\",\"orchestrator\",\"initializer\",\"utility\"]).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prompt_template_collection_count": {
+          "default": 0,
+          "description": "Number of prompt_template_collections reported.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "prompt_template_total": {
+          "default": 0,
+          "description": "Sum of template_count across all prompt_template_collections.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "claude_md_file_count": {
+          "default": 0,
+          "description": "Number of CLAUDE.md files reported in claude_config.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "ai_generated_doc_evidence_count": {
+          "default": 0,
+          "description": "Number of templates matched to actual docs (ai_generated_doc_evidence).",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "has_mcp": {
+              "type": "boolean"
+            },
+            "has_cli_scripts": {
+              "type": "boolean"
+            },
+            "has_snippets": {
+              "type": "boolean"
+            },
+            "has_claude_config": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "has_mcp",
+            "has_cli_scripts",
+            "has_snippets",
+            "has_claude_config"
+          ],
+          "additionalProperties": false,
+          "description": "Coverage flags lifted verbatim from the AI process inventory."
+        }
+      },
+      "required": [
+        "mcp_server_count",
+        "ai_cli_script_count",
+        "ai_cli_script_modes",
+        "prompt_template_collection_count",
+        "prompt_template_total",
+        "claude_md_file_count",
+        "ai_generated_doc_evidence_count"
+      ],
+      "additionalProperties": false,
+      "description": "High-signal fields lifted from repository-structure-analysis-ai-process-inventory.yaml. Omit the entire block when the AI process inventory input is missing."
+    },
+    "cross_reference_observations": {
+      "default": [],
+      "description": "Observations that only become visible by cross-referencing two or more upstream inputs. Omit any observation that can be stated from a single input alone — those belong upstream.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "observation": {
+            "type": "string",
+            "description": "One-sentence observation that only becomes visible by cross-referencing two or more upstream inputs."
+          },
+          "linked_inputs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "code_structure",
+                "work_docs",
+                "conceptual_docs",
+                "ai_process_inventory"
+              ]
+            },
+            "description": "Which of the four inputs contributed to this observation. At least two."
+          }
+        },
+        "required": [
+          "observation",
+          "linked_inputs"
+        ],
+        "additionalProperties": false,
+        "description": "A single cross-step synthesis finding. Examples: tech_stack ↔ field-guide specialization; work-doc richness ↔ AI orchestration script count; ADR presence ↔ multi-module scale."
+      }
+    },
+    "suggested_category_tags": {
+      "default": [],
+      "description": "Free-form suggestive tags for downstream categorization. NOT authoritative. Tag conservatively. Examples: \"active-development\", \"docs-only\", \"sunset\", \"reference-app\", \"mvp-simple-work-files\", \"multi-module-formal-backlog\", \"safe-light-no-code\", \"static-code-reference\". Downstream repo-profile normalizes into a committed taxonomy.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_summary": {
+      "type": "string",
+      "description": "4–8 sentence prose synthesis for a human reader. State what this repo is, what state it is in, and the team's working style based on signals. Surface what is surprising. No boilerplate, no recommendations."
+    },
+    "notes": {
+      "description": "Observations, assumptions, or cross-reference mismatches discovered during synthesis that do not fit elsewhere.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "input_coverage",
+    "cross_reference_observations",
+    "suggested_category_tags",
+    "human_summary"
+  ],
+  "additionalProperties": false,
+  "description": "Repository structure analysis summary (v0.2.0). One-time on-boarding synthesis of the four upstream repo-analysis outputs. Light-lift + suggestive tags — downstream repo-profile normalizes."
+}]]></content>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_code</name>
+            <content><![CDATA[{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "2.1.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this analysis was performed."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed. Used to detect if analysis is stale."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that performed analysis. Examples: \"claude-code\", \"copilot\", \"dwt-cli\""
+    },
+    "repository_type": {
+      "type": "string",
+      "enum": [
+        "monorepo",
+        "single-module",
+        "multi-module"
+      ],
+      "description": "High-level classification of repository structure."
+    },
+    "workspace_protocol": {
+      "default": "none",
+      "description": "Package manager or workspace protocol used for dependency management.",
+      "type": "string",
+      "enum": [
+        "npm",
+        "yarn",
+        "pnpm",
+        "bun",
+        "poetry",
+        "cargo",
+        "manual",
+        "none"
+      ]
+    },
+    "modules": {
+      "default": [],
+      "description": "Top-level modules in the repository. For single-module repos, this contains one module. For monorepos, this contains modules not belonging to any group.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "module_groups": {
+      "default": [],
+      "description": "Logical groupings of related modules. Use for .NET solutions, domain boundaries, or other organizational divisions.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of this module group. Examples: \"Backend Services\", \"Frontend Apps\", \"Data Processing\""
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Brief description of what this group represents. Examples: \"All customer-facing API services\", \"Data transformation pipelines\""
+          },
+          "modules": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema0"
+            },
+            "description": "Modules belonging to this group. Must contain at least one module."
+          }
+        },
+        "required": [
+          "name",
+          "purpose",
+          "modules"
+        ],
+        "additionalProperties": false,
+        "description": "Logical grouping of related modules. Use for .NET solutions, domain boundaries, or other organizational divisions."
+      }
+    },
+    "repository_overview": {
+      "description": "High-level overview of the repository. Include for repositories with complex architecture or multiple domains.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Brief description of the repository purpose and scope. Example: \"Monorepo for the Dream Machine Framework containing schema definitions and tooling\""
+        },
+        "architectural_patterns": {
+          "default": [],
+          "description": "Architectural patterns observed in the codebase. Examples: [\"clean architecture\", \"CQRS\", \"event-sourcing\", \"microservices\"]",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "domains": {
+          "default": [],
+          "description": "Domain boundaries or bounded contexts identified in the repository.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the domain or bounded context. Examples: \"Authentication\", \"Billing\", \"Core\""
+              },
+              "components": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of components or modules within this domain. Examples: [\"auth-service\", \"auth-lib\", \"auth-ui\"]"
+              }
+            },
+            "required": [
+              "name",
+              "components"
+            ],
+            "additionalProperties": false,
+            "description": "Domain or bounded context within the repository."
+          }
+        },
+        "key_technologies": {
+          "default": [],
+          "description": "Key technologies and frameworks used across the repository. Examples: [\"TypeScript\", \"Zod\", \"Node.js\", \"PostgreSQL\"]",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "description",
+        "architectural_patterns",
+        "domains",
+        "key_technologies"
+      ],
+      "additionalProperties": false
+    },
+    "key_files": {
+      "default": [],
+      "description": "Repository-level key files not belonging to any specific module. Examples: root README, CONTRIBUTING.md, Makefile, docker-compose.yml",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to file relative to repository root. Examples: \"src/config.ts\", \"README.md\", \"Makefile\""
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Brief description of what this file does or contains. Examples: \"Application configuration\", \"Build entry point\", \"API routes\""
+          }
+        },
+        "required": [
+          "path",
+          "purpose"
+        ],
+        "additionalProperties": false,
+        "description": "Important file within a module or repository."
+      }
+    },
+    "build_and_development": {
+      "description": "Build system, development environment, and tooling information. Include for repositories with non-obvious build or development requirements.",
+      "type": "object",
+      "properties": {
+        "build_systems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Build systems used in the repository. Examples: [\"npm\", \"dotnet\", \"make\", \"gradle\"]"
+        },
+        "recommended_ides": {
+          "default": [],
+          "description": "IDEs recommended for development. Examples: [\"VS Code\", \"Visual Studio\", \"IntelliJ IDEA\"]",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "development_commands": {
+          "description": "Key development commands and their purposes. Example: { \"npm run build\": \"Compile TypeScript\", \"npm run test\": \"Run unit tests\" }",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "environment_requirements": {
+          "description": "Environment requirements for development. Examples: [\"Node.js >= 20\", \"Docker\", \".NET 8 SDK\"]",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quality_gates": {
+          "description": "Quality gates that must pass before merging. Include linting, type checking, tests, and coverage requirements.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "gate": {
+                "type": "string",
+                "description": "Name of the quality gate. Examples: \"lint\", \"type-check\", \"unit-tests\", \"coverage\""
+              },
+              "command": {
+                "type": "string",
+                "description": "Command to run this quality gate. Examples: \"npm run lint\", \"dotnet test\", \"pytest\""
+              },
+              "description": {
+                "description": "Brief description of what this gate validates.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "gate",
+              "command"
+            ],
+            "additionalProperties": false,
+            "description": "Quality gate that must pass before merging."
+          }
+        }
+      },
+      "required": [
+        "build_systems",
+        "recommended_ides"
+      ],
+      "additionalProperties": false
+    },
+    "metrics": {
+      "description": "Aggregate volume and temporal metrics for the entire repository. Totals across all modules. Gather using file counts, line counts, and git log.",
+      "type": "object",
+      "properties": {
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of source files in this scope."
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Total lines across all source files in this scope."
+        },
+        "last_commit_date": {
+          "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+          "type": "string"
+        },
+        "last_commit_sha": {
+          "description": "Short SHA of the most recent commit touching files in this scope.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_count",
+        "line_count"
+      ],
+      "additionalProperties": false
+    },
+    "notes": {
+      "description": "Additional observations, warnings, or context. Include any inconsistencies or issues discovered during analysis.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "repository_type",
+    "workspace_protocol",
+    "modules",
+    "module_groups",
+    "key_files"
+  ],
+  "additionalProperties": false,
+  "description": "Repository code structure analysis output (v2.1.0). Uses hierarchical module-based structure to support diverse repository types including .NET solutions, Python projects, TypeScript monorepos, and data pipelines.",
+  "$defs": {
+    "__schema0": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to module root relative to repository root. Examples: \"src/\", \"packages/core/\", \"backend/api/\""
+        },
+        "name": {
+          "description": "Human-readable name for this module. If not provided, infer from path or package name. Examples: \"Core Library\", \"API Server\", \"CLI Tool\"",
+          "type": "string"
+        },
+        "tech_stack": {
+          "type": "string",
+          "description": "Technologies with versions used in this module. Include language, framework, and major dependencies. Examples: \"TypeScript 5.x, Node 20, Zod 4\", \"Python 3.11, FastAPI, SQLAlchemy\""
+        },
+        "entry_point_type": {
+          "type": "string",
+          "enum": [
+            "cli",
+            "desktop",
+            "api",
+            "web",
+            "worker",
+            "library",
+            "none",
+            "database",
+            "infrastructure",
+            "data-pipeline",
+            "serverless",
+            "mobile",
+            "notebook",
+            "extension",
+            "data-generator",
+            "reporting"
+          ],
+          "description": "Type of entry point for this module."
+        },
+        "status": {
+          "default": "production",
+          "description": "Lifecycle status of this module.",
+          "type": "string",
+          "enum": [
+            "production",
+            "beta",
+            "alpha",
+            "deprecated",
+            "parked",
+            "legacy",
+            "experimental"
+          ]
+        },
+        "key_files": {
+          "default": [],
+          "description": "Important files within this module. Include entry points, config files, and other notable files.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to file relative to repository root. Examples: \"src/config.ts\", \"README.md\", \"Makefile\""
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Brief description of what this file does or contains. Examples: \"Application configuration\", \"Build entry point\", \"API routes\""
+              }
+            },
+            "required": [
+              "path",
+              "purpose"
+            ],
+            "additionalProperties": false,
+            "description": "Important file within a module or repository."
+          }
+        },
+        "metrics": {
+          "description": "Volume and temporal metrics for this module. Gather using file counts, line counts, and git log for recent activity.",
+          "type": "object",
+          "properties": {
+            "file_count": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991,
+              "description": "Number of source files in this scope."
+            },
+            "line_count": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991,
+              "description": "Total lines across all source files in this scope."
+            },
+            "last_commit_date": {
+              "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+              "type": "string"
+            },
+            "last_commit_sha": {
+              "description": "Short SHA of the most recent commit touching files in this scope.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "file_count",
+            "line_count"
+          ],
+          "additionalProperties": false
+        },
+        "notes": {
+          "description": "Additional observations or context about this module. Include any non-obvious patterns or gotchas.",
+          "type": "string"
+        },
+        "submodules": {
+          "description": "Nested modules within this module. Use for dbt models, nested packages, or other hierarchical structures.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema0"
+          }
+        }
+      },
+      "required": [
+        "path",
+        "tech_stack",
+        "entry_point_type",
+        "status",
+        "key_files"
+      ],
+      "additionalProperties": false,
+      "description": "A discrete, buildable unit of code such as a library, service, or CLI tool. Modules are the primary organizational unit in repository analysis."
+    }
+  }
+}]]></content>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_conceptual_docs</name>
+            <content><![CDATA[{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "1.2.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this analysis was performed."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that performed analysis."
+    },
+    "root_readme": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to documentation file relative to repository root. Example: \"docs/architecture.md\""
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "readme",
+                "index",
+                "field-guide",
+                "glossary",
+                "architecture",
+                "vision-strategy",
+                "api",
+                "guide",
+                "user-manual",
+                "tutorial",
+                "reference",
+                "discovery",
+                "standards",
+                "contributing",
+                "changelog",
+                "license",
+                "other"
+              ],
+              "description": "Documentation type category."
+            },
+            "title": {
+              "description": "Title extracted from document header or filename. Example: \"System Architecture Overview\"",
+              "type": "string"
+            },
+            "purpose": {
+              "type": "string",
+              "description": "Brief description of what this document covers."
+            },
+            "quality": {
+              "description": "Assessment of documentation quality and completeness.",
+              "type": "string",
+              "enum": [
+                "comprehensive",
+                "adequate",
+                "minimal",
+                "outdated",
+                "stub"
+              ]
+            },
+            "last_modified": {
+              "description": "Last modification date if available (from git or file metadata). Format: YYYY-MM-DD",
+              "type": "string"
+            },
+            "audiences": {
+              "description": "Intended audiences for this document. Examples: \"developers\", \"operators\", \"end-users\", \"contributors\", \"ai-agents\"",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "appears_ai_generated": {
+              "description": "Whether this document appears to have been generated by an AI process. Signals: generation timestamps, \"compiled from CLAUDE.md\", ceremony output markers, \"generated by\" statements. Omit if no signal.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "path",
+            "type",
+            "purpose"
+          ],
+          "additionalProperties": false,
+          "description": "Documentation file entry."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Main README file at repository root. Null if not found."
+    },
+    "root_docs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to documentation file relative to repository root. Example: \"docs/architecture.md\""
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "readme",
+              "index",
+              "field-guide",
+              "glossary",
+              "architecture",
+              "vision-strategy",
+              "api",
+              "guide",
+              "user-manual",
+              "tutorial",
+              "reference",
+              "discovery",
+              "standards",
+              "contributing",
+              "changelog",
+              "license",
+              "other"
+            ],
+            "description": "Documentation type category."
+          },
+          "title": {
+            "description": "Title extracted from document header or filename. Example: \"System Architecture Overview\"",
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Brief description of what this document covers."
+          },
+          "quality": {
+            "description": "Assessment of documentation quality and completeness.",
+            "type": "string",
+            "enum": [
+              "comprehensive",
+              "adequate",
+              "minimal",
+              "outdated",
+              "stub"
+            ]
+          },
+          "last_modified": {
+            "description": "Last modification date if available (from git or file metadata). Format: YYYY-MM-DD",
+            "type": "string"
+          },
+          "audiences": {
+            "description": "Intended audiences for this document. Examples: \"developers\", \"operators\", \"end-users\", \"contributors\", \"ai-agents\"",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "appears_ai_generated": {
+            "description": "Whether this document appears to have been generated by an AI process. Signals: generation timestamps, \"compiled from CLAUDE.md\", ceremony output markers, \"generated by\" statements. Omit if no signal.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "type",
+          "purpose"
+        ],
+        "additionalProperties": false,
+        "description": "Documentation file entry."
+      },
+      "description": "Documentation files at repository root level (excluding README). Examples: CONTRIBUTING.md, CHANGELOG.md, LICENSE"
+    },
+    "doc_sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to documentation directory relative to repository root. Examples: \"docs/\", \"docs/products/ink-weaver/\", \"docs/field-guide/\""
+          },
+          "name": {
+            "type": "string",
+            "description": "Section name or title. Examples: \"Product Documentation\", \"Field Guide\", \"User Guide\", \"Architecture\""
+          },
+          "description": {
+            "description": "Brief description of what this section contains.",
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path to documentation file relative to repository root. Example: \"docs/architecture.md\""
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "readme",
+                    "index",
+                    "field-guide",
+                    "glossary",
+                    "architecture",
+                    "vision-strategy",
+                    "api",
+                    "guide",
+                    "user-manual",
+                    "tutorial",
+                    "reference",
+                    "discovery",
+                    "standards",
+                    "contributing",
+                    "changelog",
+                    "license",
+                    "other"
+                  ],
+                  "description": "Documentation type category."
+                },
+                "title": {
+                  "description": "Title extracted from document header or filename. Example: \"System Architecture Overview\"",
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "string",
+                  "description": "Brief description of what this document covers."
+                },
+                "quality": {
+                  "description": "Assessment of documentation quality and completeness.",
+                  "type": "string",
+                  "enum": [
+                    "comprehensive",
+                    "adequate",
+                    "minimal",
+                    "outdated",
+                    "stub"
+                  ]
+                },
+                "last_modified": {
+                  "description": "Last modification date if available (from git or file metadata). Format: YYYY-MM-DD",
+                  "type": "string"
+                },
+                "audiences": {
+                  "description": "Intended audiences for this document. Examples: \"developers\", \"operators\", \"end-users\", \"contributors\", \"ai-agents\"",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "appears_ai_generated": {
+                  "description": "Whether this document appears to have been generated by an AI process. Signals: generation timestamps, \"compiled from CLAUDE.md\", ceremony output markers, \"generated by\" statements. Omit if no signal.",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "path",
+                "type",
+                "purpose"
+              ],
+              "additionalProperties": false,
+              "description": "Documentation file entry."
+            },
+            "description": "Documentation files in this section."
+          },
+          "has_legacy_subfolder": {
+            "description": "Whether this section contains a .legacy/ or legacy/ subfolder with deprecated docs.",
+            "type": "boolean"
+          },
+          "metrics": {
+            "description": "Volume and temporal metrics for this section.",
+            "type": "object",
+            "properties": {
+              "file_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of documentation files in this scope."
+              },
+              "line_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Total lines across all documentation files in this scope."
+              },
+              "last_commit_date": {
+                "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+                "type": "string"
+              },
+              "last_commit_sha": {
+                "description": "Short SHA of the most recent commit touching files in this scope.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "file_count",
+              "line_count"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "path",
+          "name",
+          "files"
+        ],
+        "additionalProperties": false,
+        "description": "Documentation section or folder."
+      },
+      "description": "Documentation organized by section/folder. Includes docs/, docs/products/, docs/field-guide/, docs/user-guide/, and similar."
+    },
+    "api_docs": {
+      "description": "API documentation details if applicable.",
+      "type": "object",
+      "properties": {
+        "has_openapi": {
+          "type": "boolean",
+          "description": "OpenAPI/Swagger specs found"
+        },
+        "has_graphql": {
+          "type": "boolean",
+          "description": "GraphQL schema documentation found"
+        },
+        "has_grpc": {
+          "type": "boolean",
+          "description": "gRPC/protobuf documentation found"
+        },
+        "spec_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Paths to API spec files"
+        }
+      },
+      "required": [
+        "has_openapi",
+        "has_graphql",
+        "has_grpc",
+        "spec_files"
+      ],
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "has_readme": {
+          "type": "boolean",
+          "description": "Repository has a root README"
+        },
+        "has_contributing": {
+          "type": "boolean",
+          "description": "Has contribution guidelines"
+        },
+        "has_architecture": {
+          "type": "boolean",
+          "description": "Has architecture documentation"
+        },
+        "has_api_docs": {
+          "type": "boolean",
+          "description": "Has API documentation"
+        },
+        "has_setup_guide": {
+          "type": "boolean",
+          "description": "Has setup/installation guide"
+        },
+        "has_field_guide": {
+          "type": "boolean",
+          "description": "Has a field guide (single or multi-file)"
+        },
+        "has_glossary": {
+          "type": "boolean",
+          "description": "Has a glossary or terminology document"
+        },
+        "has_user_guide": {
+          "type": "boolean",
+          "description": "Has user-facing guide or manual"
+        }
+      },
+      "required": [
+        "has_readme",
+        "has_contributing",
+        "has_architecture",
+        "has_api_docs",
+        "has_setup_guide",
+        "has_field_guide",
+        "has_glossary",
+        "has_user_guide"
+      ],
+      "additionalProperties": false,
+      "description": "Documentation coverage checklist."
+    },
+    "readme_count": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991,
+      "description": "Total number of README.md files found across the entire repository. High counts can signal well-structured or over-documented repos."
+    },
+    "github_pages_url": {
+      "description": "GitHub Pages URL if detected in README or repo configuration. Null if not found. Do not follow the URL — just record it.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Structural documentation gaps observed. Examples: \"No root README\", \"No architecture documentation\", \"No glossary\". Report observable gaps only — do not prescribe what should exist."
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Documentation patterns observed. Examples: \"Field guide compiled from CLAUDE.md files\", \"Product-centric hierarchy (docs/products/{name}/)\", \"index.md used as navigation hubs\", \"Discovery folders for investigations\""
+    },
+    "metrics": {
+      "description": "Aggregate volume and temporal metrics across all conceptual documentation. Totals across all sections and root docs.",
+      "type": "object",
+      "properties": {
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of documentation files in this scope."
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Total lines across all documentation files in this scope."
+        },
+        "last_commit_date": {
+          "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+          "type": "string"
+        },
+        "last_commit_sha": {
+          "description": "Short SHA of the most recent commit touching files in this scope.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_count",
+        "line_count"
+      ],
+      "additionalProperties": false
+    },
+    "notes": {
+      "description": "Additional observations, assumptions, or mismatches discovered during analysis. Document any ambiguity in classification that could not be resolved. Note any documentation that appears AI-generated and the signals observed.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "root_readme",
+    "root_docs",
+    "doc_sections",
+    "coverage",
+    "readme_count",
+    "gaps",
+    "patterns"
+  ],
+  "additionalProperties": false,
+  "description": "Repository conceptual documentation analysis output (v1.2.0). Catalogs README files, field guides, glossaries, architecture docs, user guides, and assesses coverage. Tracks AI-generation signals and GitHub Pages references."
+}]]></content>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_work_docs</name>
+            <content><![CDATA[{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "1.2.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this analysis was performed."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that performed analysis."
+    },
+    "adr_section": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Path to ADR directory if found. Null if no ADR directory exists."
+            },
+            "convention": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ADR naming convention. Example: \"NNNN-title.md\""
+            },
+            "adrs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to ADR file relative to repository root."
+                  },
+                  "number": {
+                    "description": "ADR number if following numbered convention. Example: 1, 2, 3",
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "ADR title extracted from document."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "proposed",
+                      "accepted",
+                      "superseded",
+                      "deprecated",
+                      "rejected"
+                    ],
+                    "description": "Current status of this ADR."
+                  },
+                  "date": {
+                    "description": "Date of the decision. Format: YYYY-MM-DD",
+                    "type": "string"
+                  },
+                  "context_summary": {
+                    "description": "Brief summary of the context/problem this ADR addresses.",
+                    "type": "string"
+                  },
+                  "decision_summary": {
+                    "description": "Brief summary of the decision made.",
+                    "type": "string"
+                  },
+                  "superseded_by": {
+                    "description": "Path to ADR that supersedes this one, if applicable.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "path",
+                  "title",
+                  "status"
+                ],
+                "additionalProperties": false,
+                "description": "Architecture Decision Record."
+              },
+              "description": "All ADRs found."
+            },
+            "stats": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Total number of ADRs"
+                },
+                "accepted": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Number of accepted ADRs"
+                },
+                "superseded": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Number of superseded ADRs"
+                },
+                "deprecated": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "description": "Number of deprecated ADRs"
+                }
+              },
+              "required": [
+                "total",
+                "accepted",
+                "superseded",
+                "deprecated"
+              ],
+              "additionalProperties": false,
+              "description": "ADR statistics"
+            }
+          },
+          "required": [
+            "path",
+            "convention",
+            "adrs",
+            "stats"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "ADR section if the repository uses ADRs. Null if no ADRs found."
+    },
+    "work_sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to work docs directory relative to repository root. Examples: \"_work/tasks/\", \"docs/projects/\", \"project_docs/\""
+          },
+          "name": {
+            "type": "string",
+            "description": "Section name. Example: \"Tasks\", \"Features\", \"Project Board\""
+          },
+          "convention": {
+            "description": "Naming/numbering convention used if identified. Examples: \"YYYYMMDD-title/\", \"YYYY-MM-DD-title/\", \"NNNN-title.md\"",
+            "type": "string"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path to document file relative to repository root."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "adr",
+                    "rfc",
+                    "spec",
+                    "prd",
+                    "design",
+                    "plan",
+                    "meeting",
+                    "retrospective",
+                    "incident",
+                    "implementation-log",
+                    "request",
+                    "research",
+                    "epic",
+                    "backlog",
+                    "other"
+                  ],
+                  "description": "Work document type category."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Document title."
+                },
+                "status": {
+                  "description": "Document status if determinable.",
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "proposed",
+                    "accepted",
+                    "superseded",
+                    "deprecated",
+                    "rejected"
+                  ]
+                },
+                "date": {
+                  "description": "Document date or creation date. Format: YYYY-MM-DD",
+                  "type": "string"
+                },
+                "summary": {
+                  "description": "Brief summary of document contents.",
+                  "type": "string"
+                },
+                "related_work_units": {
+                  "description": "Related work unit IDs if referenced. Example: [\"WU-000123\"]",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "path",
+                "type",
+                "title"
+              ],
+              "additionalProperties": false,
+              "description": "Work documentation file."
+            },
+            "description": "Work documents in this section (non-ADR). Include documents from all lifecycle subfolders."
+          },
+          "adrs": {
+            "description": "ADRs in this section if it contains ADRs.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path to ADR file relative to repository root."
+                },
+                "number": {
+                  "description": "ADR number if following numbered convention. Example: 1, 2, 3",
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "title": {
+                  "type": "string",
+                  "description": "ADR title extracted from document."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "proposed",
+                    "accepted",
+                    "superseded",
+                    "deprecated",
+                    "rejected"
+                  ],
+                  "description": "Current status of this ADR."
+                },
+                "date": {
+                  "description": "Date of the decision. Format: YYYY-MM-DD",
+                  "type": "string"
+                },
+                "context_summary": {
+                  "description": "Brief summary of the context/problem this ADR addresses.",
+                  "type": "string"
+                },
+                "decision_summary": {
+                  "description": "Brief summary of the decision made.",
+                  "type": "string"
+                },
+                "superseded_by": {
+                  "description": "Path to ADR that supersedes this one, if applicable.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "path",
+                "title",
+                "status"
+              ],
+              "additionalProperties": false,
+              "description": "Architecture Decision Record."
+            }
+          },
+          "lifecycle": {
+            "description": "Folder-level lifecycle status counts. Populate when the section uses status subfolders (complete/, incoming/, _parked/, etc.).",
+            "type": "object",
+            "properties": {
+              "active_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items at the active/root level (not in any status subfolder). Includes folders with INPROGRESS- prefix."
+              },
+              "complete_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in completion folders (complete/, _complete/)."
+              },
+              "incoming_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in incoming/queue folders (incoming/, _incoming/, post-eval-incoming/)."
+              },
+              "parked_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in deferred folders (_parked/)."
+              },
+              "blocked_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of work items in blocked state (blocked-* or BLOCKED-* prefix folders)."
+              },
+              "notes": {
+                "description": "Free-text clarification for edge cases, non-standard status folders, or ambiguous lifecycle states that do not fit the structured counts.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "active_count",
+              "complete_count",
+              "incoming_count",
+              "parked_count",
+              "blocked_count"
+            ],
+            "additionalProperties": false
+          },
+          "iteration_count": {
+            "description": "Number of iteration folders found (ITERATION_NN/, ITERATION-NN/). Signals iterative development pattern. Omit if no iterations found.",
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "metrics": {
+            "description": "Volume and temporal metrics for this section.",
+            "type": "object",
+            "properties": {
+              "file_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of documentation files in this scope."
+              },
+              "line_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Total lines across all documentation files in this scope."
+              },
+              "last_commit_date": {
+                "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+                "type": "string"
+              },
+              "last_commit_sha": {
+                "description": "Short SHA of the most recent commit touching files in this scope.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "file_count",
+              "line_count"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "path",
+          "name",
+          "documents"
+        ],
+        "additionalProperties": false,
+        "description": "Work documentation section."
+      },
+      "description": "Work documentation organized by section. Each section represents a top-level work docs directory found in the repository."
+    },
+    "lifecycle_summary": {
+      "description": "Aggregate lifecycle status counts across all work sections. Provides a quick signal of overall work-in-progress state.",
+      "type": "object",
+      "properties": {
+        "active_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items at the active/root level (not in any status subfolder). Includes folders with INPROGRESS- prefix."
+        },
+        "complete_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in completion folders (complete/, _complete/)."
+        },
+        "incoming_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in incoming/queue folders (incoming/, _incoming/, post-eval-incoming/)."
+        },
+        "parked_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in deferred folders (_parked/)."
+        },
+        "blocked_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of work items in blocked state (blocked-* or BLOCKED-* prefix folders)."
+        },
+        "notes": {
+          "description": "Free-text clarification for edge cases, non-standard status folders, or ambiguous lifecycle states that do not fit the structured counts.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "active_count",
+        "complete_count",
+        "incoming_count",
+        "parked_count",
+        "blocked_count"
+      ],
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "has_adrs": {
+          "type": "boolean",
+          "description": "Repository uses ADRs"
+        },
+        "has_specs": {
+          "type": "boolean",
+          "description": "Has technical specifications"
+        },
+        "has_rfcs": {
+          "type": "boolean",
+          "description": "Has RFC/proposal process"
+        },
+        "has_planning": {
+          "type": "boolean",
+          "description": "Has planning documents"
+        },
+        "has_meeting_notes": {
+          "type": "boolean",
+          "description": "Has meeting notes"
+        }
+      },
+      "required": [
+        "has_adrs",
+        "has_specs",
+        "has_rfcs",
+        "has_planning",
+        "has_meeting_notes"
+      ],
+      "additionalProperties": false,
+      "description": "Work documentation coverage checklist."
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Work documentation patterns observed. Examples: \"Uses MADR format for ADRs\", \"Date-prefixed folders\", \"Iteration-based development (ITERATION_NN/)\", \"Lifecycle folders (complete/incoming/_parked)\""
+    },
+    "metrics": {
+      "description": "Aggregate volume and temporal metrics across all work documentation. Totals across all sections.",
+      "type": "object",
+      "properties": {
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of documentation files in this scope."
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Total lines across all documentation files in this scope."
+        },
+        "last_commit_date": {
+          "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+          "type": "string"
+        },
+        "last_commit_sha": {
+          "description": "Short SHA of the most recent commit touching files in this scope.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_count",
+        "line_count"
+      ],
+      "additionalProperties": false
+    },
+    "notes": {
+      "description": "Additional observations, assumptions, or mismatches discovered during analysis. Document any ambiguity in classification or conventions that could not be resolved.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "adr_section",
+    "work_sections",
+    "coverage",
+    "patterns"
+  ],
+  "additionalProperties": false,
+  "description": "Repository work documentation analysis output (v1.2.0). Catalogs ADRs, specs, planning docs, implementation logs, and project decision history. Tracks folder-level lifecycle status to signal work-in-progress state."
+}]]></content>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_ai_process_inventory</name>
+            <content><![CDATA[{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "default": "1.2.0",
+      "description": "Schema version. Do not modify manually.",
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+      "description": "ISO 8601 timestamp when this analysis was performed."
+    },
+    "analyzed_commit": {
+      "type": "string",
+      "description": "Full SHA of the commit that was analyzed."
+    },
+    "analyzed_by": {
+      "type": "string",
+      "description": "Identifier of the agent/tool that performed analysis."
+    },
+    "mcp_section": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "config_files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to MCP config file relative to repository root. Examples: \".mcp.json\", \".mcps/.sequential-thinking.mcp.json\", \".mcp-tool-sets/all/.mcp.json\""
+                  },
+                  "server_count": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991,
+                    "description": "Number of MCP servers configured in this file."
+                  },
+                  "purpose": {
+                    "description": "Brief description of this config file's purpose if identifiable. Examples: \"Sequential thinking only\", \"Full discovery stack\", \"Semantic code search\"",
+                    "type": "string"
+                  },
+                  "servers": {
+                    "description": "MCP server entries found in this configuration file. For files with many servers (>10), list a representative sample and note total in server_count.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "MCP server name or identifier as configured."
+                        },
+                        "command": {
+                          "description": "Command used to launch this MCP server if specified.",
+                          "type": "string"
+                        },
+                        "transport": {
+                          "description": "Transport type if identifiable. Examples: \"stdio\", \"sse\", \"http\"",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ],
+                      "additionalProperties": false,
+                      "description": "A single MCP server configuration entry."
+                    }
+                  }
+                },
+                "required": [
+                  "path",
+                  "server_count"
+                ],
+                "additionalProperties": false,
+                "description": "MCP configuration file."
+              },
+              "description": "MCP configuration files found in the repository."
+            },
+            "config_directories": {
+              "description": "Directories containing MCP configuration files. Examples: [\".mcps/\", \".mcp-tool-sets/\"]",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "total_servers": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991,
+              "description": "Total number of unique MCP servers configured across all files."
+            }
+          },
+          "required": [
+            "config_files",
+            "total_servers"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "MCP tool configuration found in the repository."
+    },
+    "ai_cli_scripts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to script file relative to repository root."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "interactive",
+              "headless",
+              "orchestrator",
+              "initializer",
+              "utility",
+              "other"
+            ],
+            "description": "How this script invokes the AI CLI."
+          },
+          "cli_tool": {
+            "description": "AI CLI tool invoked. Examples: \"claude\", \"codex\", \"aider\"",
+            "type": "string"
+          },
+          "summary": {
+            "description": "Brief description of what this script does.",
+            "type": "string"
+          },
+          "configures_mcp": {
+            "description": "Whether this script configures or passes MCP server arguments (--mcp-config).",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "mode"
+        ],
+        "additionalProperties": false,
+        "description": "AI CLI automation script."
+      },
+      "description": "Bash scripts and automation that invoke AI CLI tools."
+    },
+    "prompt_template_collections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to template folder or file relative to repository root."
+          },
+          "location_type": {
+            "type": "string",
+            "enum": [
+              "template_folder",
+              "playbook",
+              "snippet",
+              "work_folder",
+              "inline",
+              "other"
+            ],
+            "description": "Classification of where these templates live."
+          },
+          "template_count": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Number of template files found in this collection."
+          },
+          "naming_convention": {
+            "description": "Naming convention observed if identifiable. Examples: \"NN-name-template.md\", \"prompt_v{N}.md\", \"{domain}-{task}.md\"",
+            "type": "string"
+          },
+          "summary": {
+            "description": "Brief description of what these templates are for.",
+            "type": "string"
+          },
+          "inferred_target_artifacts": {
+            "description": "Artifact types this collection likely produces. A single collection may target multiple types (e.g., a playbook with steps for readme + claude_md + field_guide). Omit for work_folder and inline collections.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "readme",
+                "claude_md",
+                "user_manual",
+                "field_guide",
+                "glossary",
+                "index_doc",
+                "code_feature",
+                "commit_message",
+                "analysis",
+                "other"
+              ],
+              "description": "Artifact type this template collection likely produces. Infer from directory names, template names (e.g., \"update-readme\", \"claude-md-hierarchy\"), and frontmatter purpose fields. A collection may target multiple artifact types."
+            }
+          },
+          "snippet_extractions": {
+            "description": "AI tooling, tech stack, and mandate signals extracted from reading the template content. Only populate for snippet and playbook location types.",
+            "type": "object",
+            "properties": {
+              "tech_stack_references": {
+                "description": "Tech stack signals extracted from reading this collection's content. Include framework names and versions where specified. Examples: \"React 19.1\", \"Ink 6.4 terminal UI\", \"LangGraph v1 TypeScript\", \"Next.js App Router\", \"Python 3.11\", \"PostgreSQL via psql CLI\"",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ai_tooling": {
+                "description": "AI tooling references extracted: MCP server names, AI CLI tools, and specific tool-use directives found in template instructions. Include the directive context, not just the tool name. Examples: \"mcp__sequential-thinking for complex analysis\", \"mcp__docs-langchain — MUST USE to verify LangGraph v1 syntax\", \"psql CLI mandatory for all database queries\", \"playwright MCP for UI verification after changes\"",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "mandate_patterns": {
+                "description": "Key mandate/rule patterns extracted (NEVER/ALWAYS/MANDATORY/CRITICAL rules). Summarize each as a compact rule statement preserving the intent. Examples: \"NEVER use inline functions in JSX props — causes re-render cycles\", \"Always use psql CLI to query the database\", \"MANDATORY: verify LangGraph v1 syntax with mcp__docs-langchain before generating\", \"Hooks must be called at top level of components — React Rules of Hooks\"",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "metrics": {
+            "description": "Volume and temporal metrics for this template collection.",
+            "type": "object",
+            "properties": {
+              "file_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Number of files in this scope."
+              },
+              "line_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Total lines across all files in this scope."
+              },
+              "last_commit_date": {
+                "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+                "type": "string"
+              },
+              "last_commit_sha": {
+                "description": "Short SHA of the most recent commit touching files in this scope.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "file_count",
+              "line_count"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "path",
+          "location_type",
+          "template_count"
+        ],
+        "additionalProperties": false,
+        "description": "A collection of prompt templates."
+      },
+      "description": "Prompt template collections found in the repository. Includes organized template folders, playbooks, snippets, and work-folder .prompts/ directories."
+    },
+    "claude_config": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "claude_md_files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to CLAUDE.md file relative to repository root."
+                  },
+                  "scope": {
+                    "description": "Scope this CLAUDE.md applies to. Examples: \"root\", \"packages/core\", \"docs/projects\"",
+                    "type": "string"
+                  },
+                  "has_nontrivial_rules": {
+                    "type": "boolean",
+                    "description": "Whether this file contains non-trivial rules beyond basic project description. Examples of non-trivial: custom commit conventions, tool restrictions, code style mandates, agent workflow instructions."
+                  },
+                  "line_count": {
+                    "description": "Line count of this CLAUDE.md file.",
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "path",
+                  "has_nontrivial_rules"
+                ],
+                "additionalProperties": false,
+                "description": "A CLAUDE.md agent configuration file."
+              },
+              "description": "CLAUDE.md files found in the repository."
+            },
+            "uses_hierarchical_claude_md": {
+              "type": "boolean",
+              "description": "Whether the repo uses CLAUDE.md files in subdirectories (not just root)."
+            },
+            "agents": {
+              "description": "Claude Code agent definitions found (typically in .claude/agents/ or similar).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to definition file relative to repository root."
+                  },
+                  "name": {
+                    "description": "Name or identifier if extractable from filename or content.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "additionalProperties": false,
+                "description": "A named definition file (agent, command, skill, or sub-agent)."
+              }
+            },
+            "commands": {
+              "description": "Claude Code slash command definitions found (typically in .claude/commands/).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to definition file relative to repository root."
+                  },
+                  "name": {
+                    "description": "Name or identifier if extractable from filename or content.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "additionalProperties": false,
+                "description": "A named definition file (agent, command, skill, or sub-agent)."
+              }
+            },
+            "skills": {
+              "description": "Claude Code skill definitions found.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to definition file relative to repository root."
+                  },
+                  "name": {
+                    "description": "Name or identifier if extractable from filename or content.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "additionalProperties": false,
+                "description": "A named definition file (agent, command, skill, or sub-agent)."
+              }
+            },
+            "subagents": {
+              "description": "Claude Code sub-agent definitions found.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to definition file relative to repository root."
+                  },
+                  "name": {
+                    "description": "Name or identifier if extractable from filename or content.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "additionalProperties": false,
+                "description": "A named definition file (agent, command, skill, or sub-agent)."
+              }
+            },
+            "config_directories": {
+              "description": "Directories containing Claude configuration. Examples: [\".claude/\", \"claude-code-config-dev/\"]",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "claude_md_files",
+            "uses_hierarchical_claude_md"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Claude-specific agent configuration (CLAUDE.md, agents, commands, skills, sub-agents)."
+    },
+    "snippet_catalog": {
+      "description": "Cross-collection summary of AI tooling and tech stack signals extracted from deep-reading snippet and playbook template files. Omit if no snippet/playbook collections found.",
+      "type": "object",
+      "properties": {
+        "tech_stack_signals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Deduplicated tech stack signals across all analyzed snippet/playbook collections. Cross-reference against code-structure analysis for validation — signals that match the repo's active tech stack are high-confidence; orphaned signals suggest historical or aspirational templates."
+        },
+        "ai_tooling_signals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Deduplicated AI tooling signals across all analyzed snippet/playbook collections. Includes MCP server names, CLI tools, and specific tool-use mandates. These complement mcp_section (config-based) with instruction-based tooling references."
+        },
+        "analyzed_collection_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of template collections that were read and analyzed for signal extraction (snippet and playbook types only)."
+        }
+      },
+      "required": [
+        "tech_stack_signals",
+        "ai_tooling_signals",
+        "analyzed_collection_count"
+      ],
+      "additionalProperties": false
+    },
+    "ai_generated_doc_evidence": {
+      "description": "Evidence of AI-generated standard documentation (README, CLAUDE.md, conceptual docs). Cross-referenced against conceptual-docs output when provided as jagged input. Omit if no evidence found.",
+      "type": "object",
+      "properties": {
+        "readme_indicators": {
+          "description": "Evidence that README.md was created or structured by an AI prompt template. Look for: readme update/generation templates, shields.io badge conventions in templates, template parameters ({{app-name}}, {{version}}) that correlate with the README structure. Examples: \"readme update template found at prompts/82-update-readme/\", \"shields.io badge pattern in template matches repo README structure\"",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "claude_md_indicators": {
+          "description": "Evidence that the CLAUDE.md hierarchy was created by an AI prompt template. Look for: CLAUDE.md generation templates, templates referencing hierarchical scope parameters ({{app-folder}}, subdirectory CLAUDE.md outputs), \"minimal root / focused areas\" structural patterns in templates matching the actual CLAUDE.md files. Examples: \"CLAUDE.md hierarchy generation template found at step-23/\", \"Template output locations match actual CLAUDE.md file paths\"",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conceptual_doc_indicators": {
+          "description": "Evidence that specific conceptual doc types (index, glossary, user-manual, field-guide) were created by AI prompt templates. List each doc type separately with evidence. Cross-reference against conceptual-docs analysis output when available: if has_field_guide is true and a field-guide generation template exists, that's strong evidence. Examples: \"field-guide generation template at step-24/ — docs/field-guide.md present in repo\", \"user-manual template references docs/user-manual.md output — file confirmed present\"",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "has_mcp_config": {
+          "type": "boolean",
+          "description": "Repository has MCP server configuration"
+        },
+        "has_ai_cli_scripts": {
+          "type": "boolean",
+          "description": "Has bash scripts invoking AI CLIs"
+        },
+        "has_prompt_templates": {
+          "type": "boolean",
+          "description": "Has organized prompt templates"
+        },
+        "has_playbooks": {
+          "type": "boolean",
+          "description": "Has structured multi-step playbooks"
+        },
+        "has_snippets": {
+          "type": "boolean",
+          "description": "Has snippet collections that were deep-read for AI tooling and tech stack signals"
+        },
+        "has_claude_md": {
+          "type": "boolean",
+          "description": "Has CLAUDE.md agent configuration"
+        },
+        "has_agents": {
+          "type": "boolean",
+          "description": "Has Claude Code agent definitions"
+        },
+        "has_commands": {
+          "type": "boolean",
+          "description": "Has Claude Code slash commands"
+        },
+        "has_skills": {
+          "type": "boolean",
+          "description": "Has Claude Code skills"
+        },
+        "has_subagents": {
+          "type": "boolean",
+          "description": "Has Claude Code sub-agents"
+        },
+        "has_ai_generated_doc_evidence": {
+          "type": "boolean",
+          "description": "Found template evidence of AI-generated standard docs (README, CLAUDE.md, conceptual docs)"
+        }
+      },
+      "required": [
+        "has_mcp_config",
+        "has_ai_cli_scripts",
+        "has_prompt_templates",
+        "has_playbooks",
+        "has_snippets",
+        "has_claude_md",
+        "has_agents",
+        "has_commands",
+        "has_skills",
+        "has_subagents",
+        "has_ai_generated_doc_evidence"
+      ],
+      "additionalProperties": false,
+      "description": "AI process inventory coverage checklist."
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI process patterns observed. Examples: \"Headless scripts use --dangerously-skip-permissions with session tracking\", \"MCP configs organized by purpose in .mcps/ directory\", \"Playbooks follow numbered step sequence (NN-name-template.md)\", \"Repo-specific snippets cover tech stack mandates for React/Ink components\""
+    },
+    "metrics": {
+      "description": "Aggregate volume and temporal metrics across all AI process files.",
+      "type": "object",
+      "properties": {
+        "file_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Number of files in this scope."
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "Total lines across all files in this scope."
+        },
+        "last_commit_date": {
+          "description": "Date of the most recent commit touching files in this scope. Format: YYYY-MM-DD",
+          "type": "string"
+        },
+        "last_commit_sha": {
+          "description": "Short SHA of the most recent commit touching files in this scope.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_count",
+        "line_count"
+      ],
+      "additionalProperties": false
+    },
+    "notes": {
+      "description": "Additional observations, assumptions, or mismatches discovered during analysis. Document any ambiguity in classification that could not be resolved. Note if AI-related source code was found but excluded (e.g., LLM provider integrations in app code). Note if jagged inputs (code-structure, conceptual-docs) were or were not available.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "analyzed_at",
+    "analyzed_commit",
+    "analyzed_by",
+    "mcp_section",
+    "ai_cli_scripts",
+    "prompt_template_collections",
+    "claude_config",
+    "coverage",
+    "patterns"
+  ],
+  "additionalProperties": false,
+  "description": "Repository AI process inventory analysis output (v1.2.0). Catalogs MCP configurations, AI CLI scripts, prompt templates, playbooks, and agent configuration. For snippet and playbook collections, extracts AI tooling signals, tech stack references, and mandate patterns. Detects evidence of AI-generated standard documentation artifacts. Pure inventory for downstream analysis — no recommendations."
+}]]></content>
+        </schema_definition>
+    </schema_definitions>
+        <additional_operations>
+        <purpose>Additional operations to be performed as part of this ceremony step execution. These operations are outside the core request but are necessary for proper documentation, version control, and tracking of the work done in this step.</purpose>
+        <operations>
+            <operation>
+                <name>git_commit</name>
+                <content><![CDATA[## Commit Standards
+
+All sessions produce git commits. Write commit messages that serve both
+human readers and downstream LLM agents consuming them as `gitContext`.
+
+Write to `.git/COMMIT_EDITMSG` when git tooling is unavailable.
+
+Format:
+<type>(<scope>): <imperative summary, max 72 chars>
+
+- <intent and decisions, not implementation mechanics>
+- <contracts or schemas changed>
+- <trade-offs or options rejected>
+- <breaking changes or side effects>
+
+Types: feat|fix|refactor|chore|docs|test|perf|plan
+
+For planning sessions: capture decisions made, options rejected, next actions.
+For code sessions: surface schema/contract changes explicitly.
+Every bullet must carry signal. Omit filler.
+
+## gitContext Schema
+
+Commit structure follows `gitContext.schema.json`. The `type`, `scope`,
+and `message` fields map directly to conventional commit format.
+`body` bullets map to the structured body lines above.
+`stepOrigin` should be set when operating as part of a multi-step orchestration.
+]]></content>
+                <purpose>Perform a git commit with the message generated in this step. This commit should capture the work done in this ceremony step following the instructions provided.</purpose>
+            </operation>
+        </operations>
+    </additional_operations>
+    <outputs>
+        <output>
+            <name>repository_structure_analysis_summary</name>
+            <type>file_path_write</type>
+            <purpose>Cross-reference synthesis over the four prior repo-analysis outputs: input coverage, per-input signal lifts, cross-input observations, suggested category tags, and a human summary.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_summary</schema_definition_name>
+            <use_instruction>Generate the repository_structure_analysis_summary output conforming to schema-repository_structure_analysis_summary.</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-summary.yaml</path>
+        </output>
+    </outputs>
+    <inputs>
+        <input>
+            <name>repository_structure_analysis_code</name>
+            <type>repo_analysis</type>
+            <purpose>Code structure analysis covering tech stack, modules, build tooling, and quality gates.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_code</schema_definition_name>
+            <use_instruction>Lift code_signals fields verbatim. Use for cross-reference observations (tech stack vs. specialized guides, multi-module vs. ADR presence).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-code.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_conceptual_docs</name>
+            <type>repo_analysis</type>
+            <purpose>Conceptual documentation inventory covering README, field guides, glossaries, user manuals, and API docs.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_conceptual_docs</schema_definition_name>
+            <use_instruction>Lift conceptual_docs_signals fields verbatim. Use for cross-reference observations (AI-generated doc evidence vs. conceptual doc quality).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-conceptual-docs.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_work_docs</name>
+            <type>repo_analysis</type>
+            <purpose>Work documentation inventory covering ADRs, specs, planning artifacts, and work-in-progress state.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_work_docs</schema_definition_name>
+            <use_instruction>Lift work_docs_signals fields verbatim. Use for cross-reference observations (work-doc richness vs. AI orchestration depth, ADR presence vs. multi-module scale).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-work-docs.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_ai_process_inventory</name>
+            <type>repo_analysis</type>
+            <purpose>AI process inventory covering MCP config, CLI scripts, prompt templates, snippet signals, and AI-generated doc evidence.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_ai_process_inventory</schema_definition_name>
+            <use_instruction>Lift ai_process_signals fields verbatim. Use for cross-reference observations (snippet tech-stack signals vs. code tech stack, template collections vs. work-doc richness).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-ai-process-inventory.yaml</path>
+        </input>
+    </inputs>
+      <execution_context>
+    <purpose>Use to replace template parameters in the format: '{{context_param_name}}',' in document templates with actual values during execution.</purpose>
+      <context_params>
+        <context_param>
+            <name>ceremony_execution_folder</name>
+            <type>workspace_path</type>
+            <purpose>Default workspace for all work-related artifacts during ceremony step execution. Output files without an explicit path prefix are written relative to this folder.</purpose>
+            <value>{@ceremony_execution_folder}</value>
+        </context_param>
+        <context_param>
+            <name>execution_id</name>
+            <type>runtime_value</type>
+            <purpose>Unique execution identifier (UUID) for lineage tracking. This value is recorded in the step envelope for traceability.</purpose>
+            <value>{@execution_id}</value>
+        </context_param>
+        <context_param>
+            <name>session_id</name>
+            <type>runtime_value</type>
+            <purpose>Unique session identifier (UUID) for this ceremony step execution session.</purpose>
+            <value>{@session_id}</value>
+        </context_param>
+        <context_param>
+            <name>current_utc_datetime</name>
+            <type>runtime_value</type>
+            <purpose>Session start UTC datetime. Use this value when populating date/datetime fields in generated outputs (e.g. analyzed_at) in document template template parameters.</purpose>
+            <value>{@current_utc_datetime}</value>
+        </context_param>
+    </context_params>
+  </execution_context>
+</additional_context>
+```

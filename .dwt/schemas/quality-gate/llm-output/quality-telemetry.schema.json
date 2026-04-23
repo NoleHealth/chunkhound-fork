@@ -1,0 +1,190 @@
+{
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "can_proceed",
+        "needs_clarification",
+        "cannot_proceed"
+      ],
+      "description": "Self-reported readiness category. Must be consistent with blockers/missing/clarification_questions"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "missing_scope",
+              "missing_acceptance_criteria",
+              "missing_required_inputs",
+              "conflicting_requirements",
+              "tooling_unavailable",
+              "policy_or_safety",
+              "insufficient_permissions",
+              "other"
+            ],
+            "description": "Normalized blocker type"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Specific description of the blocker"
+          },
+          "requested_input": {
+            "type": "string",
+            "description": "What the user/system must provide to clear the blocker"
+          },
+          "evidence_from_prompt": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Short quote (<=25 words) from the prompt/context supporting this blocker, or 'NOT PROVIDED' if absent"
+          }
+        },
+        "required": [
+          "code",
+          "detail",
+          "requested_input",
+          "evidence_from_prompt"
+        ],
+        "additionalProperties": false,
+        "description": "A single blocker preventing execution. Each blocker carries a normalized code, detail, what is needed to unblock, and an evidence quote from the prompt."
+      },
+      "description": "Hard blockers preventing execution now. Leave empty if none"
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "needed": {
+            "type": "string",
+            "description": "Name of the missing input (e.g., 'acceptance criteria')"
+          },
+          "why": {
+            "type": "string",
+            "description": "Why it is needed to proceed safely/correctly"
+          },
+          "evidence_from_prompt": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Short quote (<=25 words) from the prompt/context showing it is missing, or 'NOT PROVIDED'"
+          }
+        },
+        "required": [
+          "needed",
+          "why",
+          "evidence_from_prompt"
+        ],
+        "additionalProperties": false,
+        "description": "A concrete missing input required to implement correctly (even if not a hard blocker)."
+      },
+      "description": "Concrete missing inputs required to implement correctly (even if not a hard blocker)"
+    },
+    "clarification_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions to resolve ambiguity or fill missing information. Keep concise"
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "Description of the contradiction"
+          },
+          "evidence_from_prompt": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Short quote from the prompt/context showing the contradiction"
+          }
+        },
+        "required": [
+          "detail",
+          "evidence_from_prompt"
+        ],
+        "additionalProperties": false,
+        "description": "A conflict detected within requirements or constraints."
+      },
+      "description": "Conflicts detected within requirements or constraints"
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "assumption": {
+            "type": "string",
+            "description": "The assumption that was made"
+          },
+          "impact": {
+            "type": "string",
+            "description": "Potential impact if the assumption is wrong"
+          },
+          "evidence_from_prompt": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Short quote supporting the assumption, or 'INFERRED' if not explicitly stated"
+          }
+        },
+        "required": [
+          "assumption",
+          "impact",
+          "evidence_from_prompt"
+        ],
+        "additionalProperties": false,
+        "description": "An assumption made to proceed. Each must include an evidence note ('INFERRED' allowed)."
+      },
+      "description": "Any assumptions made to proceed. Each must include an evidence note ('INFERRED' allowed)"
+    },
+    "uncertainty_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas that remain uncertain after analysis (not necessarily blocking)"
+    },
+    "evidence_quotes": {
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A small set of short, direct quotes from the prompt/context used as evidence (<=25 words each)"
+    },
+    "proposed_deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Concrete deliverables that will be produced if proceeding (files, artifacts, outputs). Empty if cannot proceed"
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Repo-relative file paths actually modified/created during this step. Empty if none"
+    }
+  },
+  "required": [
+    "status",
+    "blockers",
+    "missing_information",
+    "clarification_questions",
+    "contradictions",
+    "assumptions",
+    "uncertainty_areas",
+    "evidence_quotes",
+    "proposed_deliverables",
+    "changed_files"
+  ],
+  "additionalProperties": false,
+  "description": "Quality telemetry metadata for flow control and auditability. The CLI quality gate evaluates these fields deterministically to decide whether the ceremony can proceed, needs HITL intervention, or must stop."
+}
