@@ -1,0 +1,70 @@
+<additional_context>
+    <schema_definitions>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_summary</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-summary.schema.json</path>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_code</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-code.schema.json</path>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_conceptual_docs</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-conceptual-docs.schema.json</path>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_work_docs</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-work-docs.schema.json</path>
+        </schema_definition>
+        <schema_definition>
+            <name>schema-repository_structure_analysis_ai_process_inventory</name>
+            <path>{{schemas}}/on-board/repo-analysis/repository-structure-analysis-ai-process-inventory.schema.json</path>
+        </schema_definition>
+    </schema_definitions>
+    <additional_operations></additional_operations>
+    <outputs>
+        <output>
+            <name>repository_structure_analysis_summary</name>
+            <type>file_path_write</type>
+            <purpose>Cross-reference synthesis over the four prior repo-analysis outputs: input coverage, per-input signal lifts, cross-input observations, suggested category tags, and a human summary.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_summary</schema_definition_name>
+            <use_instruction>Generate the repository_structure_analysis_summary output conforming to schema-repository_structure_analysis_summary.</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-summary.yaml</path>
+        </output>
+    </outputs>
+    <inputs>
+        <input>
+            <name>repository_structure_analysis_code</name>
+            <type>repo_analysis</type>
+            <purpose>Code structure analysis covering tech stack, modules, build tooling, and quality gates.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_code</schema_definition_name>
+            <use_instruction>Lift code_signals fields verbatim. Use for cross-reference observations (tech stack vs. specialized guides, multi-module vs. ADR presence).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-code.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_conceptual_docs</name>
+            <type>repo_analysis</type>
+            <purpose>Conceptual documentation inventory covering README, field guides, glossaries, user manuals, and API docs.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_conceptual_docs</schema_definition_name>
+            <use_instruction>Lift conceptual_docs_signals fields verbatim. Use for cross-reference observations (AI-generated doc evidence vs. conceptual doc quality).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-conceptual-docs.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_work_docs</name>
+            <type>repo_analysis</type>
+            <purpose>Work documentation inventory covering ADRs, specs, planning artifacts, and work-in-progress state.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_work_docs</schema_definition_name>
+            <use_instruction>Lift work_docs_signals fields verbatim. Use for cross-reference observations (work-doc richness vs. AI orchestration depth, ADR presence vs. multi-module scale).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-work-docs.yaml</path>
+        </input>
+        <input>
+            <name>repository_structure_analysis_ai_process_inventory</name>
+            <type>repo_analysis</type>
+            <purpose>AI process inventory covering MCP config, CLI scripts, prompt templates, snippet signals, and AI-generated doc evidence.</purpose>
+            <schema_definition_name>schema-repository_structure_analysis_ai_process_inventory</schema_definition_name>
+            <use_instruction>Lift ai_process_signals fields verbatim. Use for cross-reference observations (snippet tech-stack signals vs. code tech stack, template collections vs. work-doc richness).</use_instruction>
+            <path>{{ceremony_execution_folder}}/repository-structure-analysis-ai-process-inventory.yaml</path>
+        </input>
+    </inputs>
+    <execution_context></execution_context>
+</additional_context>

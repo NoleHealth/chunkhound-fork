@@ -1,0 +1,79 @@
+{
+  "type": "object",
+  "properties": {
+    "has_contradictions": {
+      "type": "boolean",
+      "description": "True if the request contains contradictory requirements that cannot both be satisfied"
+    },
+    "has_missing_critical_info": {
+      "type": "boolean",
+      "description": "True if essential information is missing that would be needed to fulfill the request"
+    },
+    "requires_clarification": {
+      "type": "boolean",
+      "description": "True if the request is ambiguous and could be interpreted multiple ways"
+    },
+    "has_logical_impossibility": {
+      "type": "boolean",
+      "description": "True if the request asks for something logically impossible"
+    },
+    "contradictions_found": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific contradictions identified in the request (empty if none)"
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Critical information that is missing from the request (empty if none)"
+    },
+    "clarification_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions that would need to be answered to proceed (empty if none)"
+    },
+    "assumptions_made": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Assumptions made to interpret or fulfill the request"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "description": "Self-assessed confidence in understanding and fulfilling the request"
+    },
+    "uncertainty_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific areas where uncertainty exists"
+    }
+  },
+  "required": [
+    "has_contradictions",
+    "has_missing_critical_info",
+    "requires_clarification",
+    "has_logical_impossibility",
+    "contradictions_found",
+    "missing_information",
+    "clarification_questions",
+    "assumptions_made",
+    "confidence_level",
+    "uncertainty_areas"
+  ],
+  "additionalProperties": false,
+  "description": "Individual gate input fields for CLI-side computation. The LLM reports these values honestly; the CLI computes the pass/fail decision deterministically."
+}

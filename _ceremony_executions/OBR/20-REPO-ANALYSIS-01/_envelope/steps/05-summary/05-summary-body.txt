@@ -1,0 +1,76 @@
+# Repository Analysis Summary
+
+You are a repository analyst. You have been provided the outputs of four prior analysis steps for this repository. Synthesize them into a structured cross-reference summary that conforms to `schema-repository_structure_analysis_summary`.
+
+## Ground rules
+
+- **Pure synthesis.** Do not re-inventory files, re-scan the repo, or recommend improvements.
+- **Schema-first.** Field names, types, and descriptions in `schema-repository_structure_analysis_summary` are authoritative. Read the schema before writing anything.
+- **Light lift.** Copy upstream values verbatim when the schema asks for a string — do not re-normalize (e.g. pass through `"single-module"` as-is; do not rename to `"single_module"`).
+- **Suggestive, not authoritative.** `suggested_category_tags` seeds a downstream normalizer; tag conservatively.
+- **Partial-input tolerant.** Any of the four inputs may be missing or partial. Record this in `input_coverage` and omit the corresponding `*_signals` block entirely — do not emit a block populated with null scaffolding.
+
+## Inputs
+
+Read the four prior analysis outputs provided as context inputs:
+
+- `code_structure_analysis` — tech stack, modules, build tooling, quality gates
+- `work_docs_analysis` — ADRs, specs, planning artifacts, work-in-progress state
+- `conceptual_docs_analysis` — README, user manual, field guide, glossary, API docs
+- `ai_process_inventory` — MCP config, CLI scripts, prompt templates, snippet signals, AI-generated doc evidence
+
+For each input, determine `present` / `partial` / `missing`:
+
+- **present** — file exists and key sections are populated
+- **partial** — file exists but key sections (modules, metrics, work_sections) are empty or clearly truncated
+- **missing** — file was not provided
+
+## Tasks
+
+Produce a `repository_structure_analysis_summary` with these sections. Each task corresponds 1:1 to a schema block — rely on the schema's field descriptions for field-level detail.
+
+### 1. `input_coverage`
+Record presence for each of the four inputs and an overall `confidence` (`high` when 4/4 present, `medium` when 3/4 or partials appear, `low` when 2/4 or fewer). Add a short `notes` only when a missing input materially changes what downstream consumers can rely on.
+
+### 2. `code_signals` *(omit entirely if `code_structure` is missing)*
+Lift: `repository_type`, `module_count`, `entry_point_types[]` (deduplicated across modules), `primary_languages[]`, `key_technologies[]`, `modules_by_status` (histogram), `file_count`, `line_count`, `last_commit_date`.
+
+### 3. `conceptual_docs_signals` *(omit entirely if `conceptual_docs` is missing)*
+Lift: `root_readme_quality`, `doc_section_count`, `readme_count`, `coverage` flags (`has_readme` / `has_field_guide` / `has_user_manual` / `has_glossary`), `quality_distribution` histogram, `appears_ai_generated_count` (0 when the flag is not used upstream), optional `github_pages_url`, volume metrics, `last_commit_date`.
+
+### 4. `work_docs_signals` *(omit entirely if `work_docs` is missing)*
+Lift: `adr_present`, `adr_count`, `work_section_count`, `conventions_observed[]` (verbatim from `work_sections[].naming_convention` and `patterns`), `lifecycle_summary` (active/complete/incoming/parked/blocked), `coverage` flags, volume metrics, `last_commit_date`.
+
+### 5. `ai_process_signals` *(omit entirely if `ai_process_inventory` is missing)*
+Lift: `mcp_server_count` (summed across all `mcp_section` entries), `ai_cli_script_count`, `ai_cli_script_modes[]` (deduplicated), `prompt_template_collection_count`, `prompt_template_total` (sum of `template_count`), `claude_md_file_count`, `ai_generated_doc_evidence_count`, `coverage` flags.
+
+### 6. `cross_reference_observations[]`
+Capture findings that are only visible by cross-referencing ≥2 inputs. Omit anything restatable from a single input — that belongs upstream. Expected patterns to look for:
+
+- **Tech-stack ↔ specialized guides** — code reports Ink/React or similar frontend framework, and conceptual-docs surfaces a framework-specific field-guide section. Or the inverse: the stack is specialized but no guide exists.
+- **Work-doc richness ↔ AI orchestration depth** — deep `_work/` / `_dmf-work/` iteration history correlates with many AI CLI scripts and multiple prompt-template collections. Or one is rich and the other is thin — surface the asymmetry.
+- **ADR presence ↔ multi-module scale** — ADRs tend to emerge in larger, longer-lived multi-module systems facing alignment problems; absent ADRs in a multi-module repo is a signal worth recording.
+- **AI-generated doc evidence ↔ conceptual doc quality** — many `appears_ai_generated` flags alongside a "stub" or "minimal" root README is a signal, as is templated AI coverage paired with a "comprehensive" README.
+
+For each observation, populate `linked_inputs` with the ≥2 input names used.
+
+### 7. `suggested_category_tags[]`
+Free-form. Tag conservatively from evidence, not aspiration. Examples of the kind of tags the downstream normalizer expects:
+
+- `active-development`, `sunset`, `parked`
+- `docs-only`, `safe-light-no-code`, `mvp-simple-work-files`
+- `static-code-reference`, `reference-app`, `published-library`
+- `single-module`, `multi-module-formal-backlog`
+- `ai-first-tooling`, `minimal-ai-tooling`
+
+Do not invent a tag unless an existing synonym does not fit. If you are uncertain, omit the tag.
+
+### 8. `human_summary`
+4–8 sentences of prose for a human reader. State what the repo IS (role / category), what state it's IN (activity, maturity), and the team's WORKING STYLE (formal backlog vs flat files vs docs-only, AI-tooling-forward vs not). Lead with what is surprising. No boilerplate, no recommendations, no next-steps.
+
+### 9. `notes` *(optional)*
+Anything that doesn't fit above — cross-reference mismatches, schema-interpretation assumptions, parsing ambiguities.
+
+## Output
+
+Generate `repository_structure_analysis_summary` conforming to `schema-repository_structure_analysis_summary`.
