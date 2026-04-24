@@ -1,0 +1,137 @@
+schema_version: 0.2.0
+analyzed_at: 2026-04-23T23:57:10Z
+analyzed_commit: 08703e92676f48aeedf3c9af3142d62bef59e14e
+analyzed_by: claude-opus-4-7 (ceremony OBR/20-REPO-ANALYSIS-01 step 05)
+
+input_coverage:
+  code_structure: present
+  work_docs: present
+  conceptual_docs: present
+  ai_process_inventory: present
+  confidence: high
+
+code_signals:
+  repository_type: single-module
+  module_count: 1
+  entry_point_types:
+    - cli
+    - api
+    - library
+    - worker
+    - none
+  primary_languages:
+    - Python
+  key_technologies:
+    - Python 3.10-3.13
+    - DuckDB
+    - LanceDB / pylance
+    - tree-sitter (multi-language)
+    - Model Context Protocol (MCP)
+    - Pydantic 2 / pydantic-settings
+    - OpenAI, Anthropic, VoyageAI, Google GenAI SDKs
+    - hatchling + hatch-vcs
+    - uv package manager
+  modules_by_status:
+    alpha: 1
+  file_count: 648
+  line_count: 169785
+  last_commit_date: '2026-04-20'
+
+conceptual_docs_signals:
+  root_readme_quality: adequate
+  doc_section_count: 6
+  readme_count: 7
+  coverage:
+    has_readme: true
+    has_field_guide: false
+    has_user_manual: false
+    has_glossary: false
+  quality_distribution:
+    comprehensive: 4
+    adequate: 10
+    stub: 2
+  appears_ai_generated_count: 0
+  github_pages_url: https://chunkhound.github.io
+  file_count: 16
+  line_count: 2607
+  last_commit_date: '2026-04-15'
+
+work_docs_signals:
+  adr_present: false
+  adr_count: 0
+  work_section_count: 1
+  conventions_observed:
+    - "NN-<step-slug>/ step folders under _envelope/steps/; per-step outputs as <step>-<uuid>-<kind>.json and top-level repository-structure-analysis-<scope>.yaml"
+    - "No traditional work docs directories (_work/, docs/projects/, project_docs/, _dmf-work/) exist in the repository."
+    - "No ADR directory or Architecture Decision Record convention in use."
+    - "Only work-docs-like artifacts are under _ceremony_executions/, produced by the DWT OBR ceremony tooling."
+    - "Ceremony outputs follow numbered step folders (NN-<slug>/) with paired body/context/output artifacts per step."
+    - "Root-level operational notes (operations/database_concurrency.md, RELEASING.md, MIGRATION_GUIDE.md, QWEN3_TUNING.md) serve as reference/conceptual docs rather than decision or planning records."
+  lifecycle_summary:
+    active: 1
+    complete: 0
+    incoming: 0
+    parked: 0
+    blocked: 0
+  coverage:
+    has_adrs: false
+    has_specs: false
+    has_epics: false
+    has_implementation_logs: false
+  file_count: 21
+  line_count: 4475
+  last_commit_date: '2026-04-20'
+
+ai_process_signals:
+  mcp_server_count: 0
+  ai_cli_script_count: 2
+  ai_cli_script_modes:
+    - headless
+    - orchestrator
+  prompt_template_collection_count: 3
+  prompt_template_total: 10
+  claude_md_file_count: 2
+  ai_generated_doc_evidence_count: 1
+  coverage:
+    has_mcp: false
+    has_cli_scripts: true
+    has_snippets: true
+    has_claude_config: true
+
+cross_reference_observations:
+  - observation: "Product code integrates multiple LLM SDKs (OpenAI, Anthropic, VoyageAI, Google GenAI) and exposes its own MCP server, yet the repo itself has no MCP configuration for development — ChunkHound is MCP-producing, not MCP-consuming, at the dev-process layer."
+    linked_inputs:
+      - code_structure
+      - ai_process_inventory
+  - observation: "A 170K-line, multi-domain Python codebase (parsing, storage, embeddings, MCP, daemon) operates with zero ADRs, specs, RFCs, or planning docs — unusually light formal decision-record overhead for a project of this scale."
+    linked_inputs:
+      - code_structure
+      - work_docs
+  - observation: "All AI process tooling (ceremony scripts, prompt-template playbook) and all work-doc artifacts trace back to the same in-progress OBR repo-analysis ceremony — the AI automation footprint exists solely to produce the analysis outputs, not to drive product development."
+    linked_inputs:
+      - work_docs
+      - ai_process_inventory
+  - observation: "In-repo user/conceptual documentation is deliberately thin (no field guide, glossary, user manual, or docs/ tree) because primary end-user documentation is externalized to chunkhound.github.io; the repo optimizes for AI-agent context (AGENTS.md) over in-repo human docs."
+    linked_inputs:
+      - conceptual_docs
+      - ai_process_inventory
+  - observation: "Root CLAUDE.md is a one-line @AGENTS.md import and AGENTS.md is the substantive instruction file, a convention consistent with the conceptual-docs classification of CLAUDE.md as a 'stub' with audience 'ai-agents'."
+    linked_inputs:
+      - conceptual_docs
+      - ai_process_inventory
+
+suggested_category_tags:
+  - active-development
+  - single-module
+  - published-library
+  - mcp-server
+  - ai-first-product
+  - minimal-ai-dev-tooling
+  - docs-externalized
+  - no-formal-backlog
+
+human_summary: |
+  ChunkHound is an actively developed, single-module Python CLI and MCP server (648 files, ~170K LOC) that indexes codebases into DuckDB/LanceDB and exposes semantic/regex search to AI assistants. The repo is self-described as 100% AI-agent-written and is published to PyPI via OIDC trusted publishing, with all modules flagged "alpha" despite the substantial codebase size. What is surprising is the asymmetry between product scope and process overhead: a multi-domain codebase spanning parsers, storage, embeddings, MCP servers, and a background daemon operates with no ADRs, specs, RFCs, planning docs, or decision records — the only "work docs" in the repo are the in-progress OBR analysis ceremony outputs themselves. User-facing documentation is deliberately externalized to chunkhound.github.io, leaving the in-repo doc surface thin (adequate README, topic guides like QWEN3_TUNING.md and MIGRATION_GUIDE.md, module-scoped READMEs) with no field guide, glossary, or user manual. The AI-process footprint is similarly lean: no MCP config or Claude Code agents/skills/subagents, just two `.dwt/ops-scripts/*.sh` ceremony runners plus .dwt/git-ops snippets, and a CLAUDE.md → AGENTS.md redirect convention. The team's working style reads as code-first, externally-documented, and lightly ceremonial — product code carries the heavy LLM integration (chunkhound/autodoc, code_mapper, services/prompts) while the dev process stays flat and test-gated (mandatory smoke tests before commits, full suite before PR).
+
+notes: |
+  All four upstream inputs were present and well-populated; confidence is high. appears_ai_generated_count set to 0 because the upstream conceptual-docs analysis explicitly reports no AI-generation signals on individual documents — the flag was effectively not used, per its own notes. quality_distribution counts 16 files across root_readme (1) + root_docs (8) + doc_sections files (7) matching the upstream metrics.file_count of 16. claude_md_file_count is 2 (CLAUDE.md + AGENTS.md) as reported upstream, even though AGENTS.md is not literally named CLAUDE.md — the AI-process analysis catalogs it as a CLAUDE.md-equivalent since the substantive agent rules live there. ai_generated_doc_evidence_count is 1, counting the single claude_md_indicators entry (readme and conceptual_doc indicators are both empty). work_docs_signals.coverage.has_epics/has_implementation_logs defaulted to false since upstream work-docs coverage uses a different flag set (has_rfcs/has_planning/has_meeting_notes) — no such artifacts exist in either schema interpretation.
