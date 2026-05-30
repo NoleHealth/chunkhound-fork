@@ -446,6 +446,48 @@ class MCPServerBase(ABC):
                 )
                 raise
 
+    def _is_read_only(self) -> bool:
+        """Whether this server serves a prebuilt index read-only (no watcher)."""
+        database = getattr(self.config, "database", None)
+        if bool(getattr(database, "read_only", False)):
+            return True
+        if bool(getattr(self.args, "read_only", False)):
+            return True
+        env = os.getenv("CHUNKHOUND_DATABASE__READ_ONLY", "")
+        return env.strip().lower() in ("1", "true", "yes", "on")
+
+    def _mark_read_only_ready(self) -> None:
+        """Mark the read-only server queryable with a non-degraded realtime snapshot.
+
+        query_ready is derived from ``scan_completed_at`` (see status.py), and
+        ``status`` degrades on realtime errors / needs_resync. Read-only mode runs
+        no scan and no watcher, so synthesize a clean, idle realtime state here.
+        """
+        now = datetime.now().isoformat()
+        self._scan_progress["is_scanning"] = False
+        self._scan_progress["scan_completed_at"] = now
+        self._scan_progress["scan_error"] = None
+
+        realtime = copy.deepcopy(
+            self._scan_progress.get("realtime") or self._default_realtime_scan_status()
+        )
+        realtime["service_state"] = "read_only"
+        realtime["live_indexing_state"] = "disabled"
+        realtime["live_indexing_hint"] = (
+            "Read-only MCP server: realtime indexing disabled; serving a prebuilt "
+            "index."
+        )
+        realtime["last_error"] = None
+        realtime["last_error_at"] = None
+        resync = realtime.get("resync")
+        if not isinstance(resync, dict):
+            resync = {}
+        resync["needs_resync"] = False
+        resync["in_progress"] = False
+        realtime["resync"] = resync
+        realtime["startup"] = self._startup_tracker.snapshot()
+        self._scan_progress["realtime"] = realtime
+
     def _configured_realtime_backend(self) -> str | None:
         """Return the configured realtime backend when it is explicitly supported."""
         try:
@@ -494,6 +536,18 @@ class MCPServerBase(ABC):
             self._start_startup_phase("db_connect")
             await self._connect_provider()
             self._complete_startup_phase("db_connect")
+
+            # Read-only serve mode: the index is prebuilt and immutable, so skip
+            # the realtime watcher (and its watchman runtime) and the initial scan
+            # entirely. This is what lets multiple per-config servers coexist on one
+            # workspace without colliding on the shared watchman socket/log/state.
+            if self._is_read_only():
+                self.debug_log(
+                    "Read-only mode: skipping realtime indexing and initial scan"
+                )
+                self._mark_read_only_ready()
+                self._complete_startup()
+                return
 
             # Start real-time indexing service
             self.debug_log("Starting real-time indexing service (deferred)")

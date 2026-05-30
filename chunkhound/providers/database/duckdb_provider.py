@@ -240,8 +240,13 @@ class DuckDBProvider(SerialDatabaseProvider):
             DuckDB connection object
         """
         # Create a NEW connection for the executor thread
-        # This ensures thread safety - only this thread will use this connection
-        conn = duckdb.connect(str(self._connection_manager.db_path))
+        # This ensures thread safety - only this thread will use this connection.
+        # Mirror read-only mode so this handle takes no write lock either, letting
+        # multiple read-only servers (distinct configs) share one workspace.
+        conn = duckdb.connect(
+            str(self._connection_manager.db_path),
+            read_only=self._connection_manager.read_only,
+        )
 
         # Load required extensions
         conn.execute("INSTALL vss")
@@ -375,6 +380,16 @@ class DuckDBProvider(SerialDatabaseProvider):
         Note: The connection is already created by _get_thread_local_connection,
         so this method just ensures schema and indexes are created.
         """
+        # Read-only mode serves a prebuilt DB: its schema, indexes and any legacy
+        # migrations already exist, and the connection is opened read-only — so all
+        # of the DDL / WAL-cleanup below would raise "Cannot execute statement of
+        # type CREATE ... in read-only mode". Skip executor-side initialization.
+        if self._connection_manager.read_only:
+            logger.info(
+                "Read-only mode: skipping schema/index creation and WAL cleanup"
+            )
+            return
+
         try:
             # Perform WAL cleanup once with synchronization
             with self._wal_cleanup_lock:
