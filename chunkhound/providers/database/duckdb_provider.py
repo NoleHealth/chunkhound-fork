@@ -240,8 +240,13 @@ class DuckDBProvider(SerialDatabaseProvider):
             DuckDB connection object
         """
         # Create a NEW connection for the executor thread
-        # This ensures thread safety - only this thread will use this connection
-        conn = duckdb.connect(str(self._connection_manager.db_path))
+        # This ensures thread safety - only this thread will use this connection.
+        # Mirror read-only mode so this handle takes no write lock either, letting
+        # multiple read-only servers (distinct configs) share one workspace.
+        conn = duckdb.connect(
+            str(self._connection_manager.db_path),
+            read_only=self._connection_manager.read_only,
+        )
 
         # Load required extensions
         conn.execute("INSTALL vss")

@@ -46,9 +46,23 @@ class DuckDBConnectionManager:
         self._db_path = db_path
         self.connection: Any | None = None
         self.config = config
+        self._read_only = self._resolve_read_only(config)
 
         # Note: Thread safety is now handled by DuckDBProvider's executor pattern
         # All database operations are serialized to a single thread
+
+    @staticmethod
+    def _resolve_read_only(config: Any | None) -> bool:
+        """Resolve read-only mode from the database config or env override."""
+        if bool(getattr(config, "read_only", False)):
+            return True
+        env = os.getenv("CHUNKHOUND_DATABASE__READ_ONLY", "")
+        return env.strip().lower() in ("1", "true", "yes", "on")
+
+    @property
+    def read_only(self) -> bool:
+        """Whether the database is opened read-only (no writes, no WAL cleanup)."""
+        return self._read_only
 
     @property
     def db_path(self) -> Path | str:
@@ -79,7 +93,10 @@ class DuckDBConnectionManager:
 
             # Connect to database with WAL validation
             # Thread safety is now handled by DuckDBProvider's executor pattern
-            self._preemptive_wal_cleanup()
+            # Read-only mode never mutates the file, so the WAL-cleanup path
+            # (which deletes/rewrites the .wal) is skipped entirely.
+            if not self._read_only:
+                self._preemptive_wal_cleanup()
             self._connect_with_wal_validation()
 
             logger.info("DuckDB connection established")
@@ -99,11 +116,18 @@ class DuckDBConnectionManager:
         """Connect to DuckDB with WAL corruption detection and automatic cleanup."""
         try:
             # Attempt initial connection
-            self.connection = duckdb.connect(str(self.db_path))
+            self.connection = duckdb.connect(
+                str(self.db_path), read_only=self._read_only
+            )
             logger.debug("DuckDB connection successful")
 
         except duckdb.Error as e:
             error_msg = str(e)
+
+            # Read-only connections must never trigger WAL recovery (it writes).
+            # Surface the original error so the operator can rebuild the index.
+            if self._read_only:
+                raise
 
             # Check for WAL corruption patterns
             if self._is_wal_corruption_error(error_msg):

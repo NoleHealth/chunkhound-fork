@@ -38,6 +38,17 @@ def add_mcp_subparser(subparsers: Any) -> argparse.ArgumentParser:
         help="Run MCP server directly without daemon (single client mode)",
     )
 
+    # Read-only serving: open the prebuilt index read-only and disable the
+    # realtime watcher, so multiple per-config servers can share one workspace.
+    mcp_parser.add_argument(
+        "--read-only",
+        action="store_true",
+        help=(
+            "Serve a prebuilt index read-only: no write lock, no filesystem "
+            "watcher. Allows multiple MCP servers (distinct configs) per workspace."
+        ),
+    )
+
     # Add common arguments
     add_common_arguments(mcp_parser)
 

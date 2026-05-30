@@ -45,6 +45,12 @@ async def mcp_command(args: argparse.Namespace, config) -> None:
     # Set MCP mode environment early
     os.environ["CHUNKHOUND_MCP_MODE"] = "1"
 
+    # Bridge --read-only into the config env channel so it reaches the
+    # DatabaseConfig (read-only connect) and the realtime-skip path uniformly,
+    # independent of CLI→config merge ordering.
+    if getattr(args, "read_only", False):
+        os.environ["CHUNKHOUND_DATABASE__READ_ONLY"] = "true"
+
     # CRITICAL: Import numpy modules early for DuckDB threading safety in MCP mode
     # Must happen before any DuckDB operations in async/threading context
     # See: https://duckdb.org/docs/stable/clients/python/known_issues.html

@@ -32,6 +32,17 @@ class DatabaseConfig(BaseModel):
         default="duckdb", description="Database provider to use"
     )
 
+    # Read-only serving
+    read_only: bool = Field(
+        default=False,
+        description=(
+            "Open the database read-only and disable realtime indexing. Serves a "
+            "prebuilt index without taking a write lock or starting a filesystem "
+            "watcher, so multiple MCP servers (distinct configs) can run against one "
+            "workspace without colliding on watchman runtime resources."
+        ),
+    )
+
     # LanceDB-specific settings
     lancedb_index_type: Literal["auto", "ivf_hnsw_sq", "ivf_rq"] | None = Field(
         default=None,
@@ -154,6 +165,13 @@ class DatabaseConfig(BaseModel):
             config["path"] = Path(db_path)
         if provider := os.getenv("CHUNKHOUND_DATABASE__PROVIDER"):
             config["provider"] = provider
+        if (read_only := os.getenv("CHUNKHOUND_DATABASE__READ_ONLY")) is not None:
+            config["read_only"] = read_only.strip().lower() in (
+                "1",
+                "true",
+                "yes",
+                "on",
+            )
         if index_type := os.getenv("CHUNKHOUND_DATABASE__LANCEDB_INDEX_TYPE"):
             config["lancedb_index_type"] = index_type
         if threshold := os.getenv(
@@ -179,6 +197,8 @@ class DatabaseConfig(BaseModel):
             overrides["path"] = args.database_path
         if hasattr(args, "database_provider") and args.database_provider:
             overrides["provider"] = args.database_provider
+        if getattr(args, "read_only", False):
+            overrides["read_only"] = True
         if hasattr(args, "max_disk_usage_gb") and args.max_disk_usage_gb is not None:
             overrides["max_disk_usage_mb"] = args.max_disk_usage_gb * 1024.0
         return overrides
