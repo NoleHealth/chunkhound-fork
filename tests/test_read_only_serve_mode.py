@@ -125,3 +125,34 @@ def test_read_only_refuses_writes(tmp_path):
             cm.connection.execute("INSERT INTO t VALUES (99)")
     finally:
         cm.connection.close()
+
+
+def test_read_only_provider_connect_skips_schema_creation(tmp_path):
+    """Regression: read-only provider.connect() must NOT run schema/index DDL.
+
+    The executor connect path creates schema + indexes; on a read-only DuckDB
+    connection those CREATE statements raise and crash MCP startup. Read-only
+    serves a prebuilt DB, so connect must skip executor-side initialization.
+    """
+    from chunkhound.providers.database.duckdb_provider import DuckDBProvider
+
+    db = tmp_path / "chunks.db"
+    rw = DuckDBProvider(
+        db, tmp_path, config=DatabaseConfig(provider="duckdb", path=db)
+    )
+    rw.connect()  # builds schema read-write
+    rw.close()
+
+    ro = DuckDBProvider(
+        db,
+        tmp_path,
+        config=DatabaseConfig(provider="duckdb", path=db, read_only=True),
+    )
+    ro.connect()  # would raise "CREATE ... in read-only mode" without the skip
+    try:
+        assert ro.is_connected
+        assert ro._connection_manager.read_only is True
+        # schema is present and queryable (created by the read-write open)
+        ro.connection.execute("SELECT count(*) FROM files").fetchone()
+    finally:
+        ro.close()

@@ -380,6 +380,16 @@ class DuckDBProvider(SerialDatabaseProvider):
         Note: The connection is already created by _get_thread_local_connection,
         so this method just ensures schema and indexes are created.
         """
+        # Read-only mode serves a prebuilt DB: its schema, indexes and any legacy
+        # migrations already exist, and the connection is opened read-only — so all
+        # of the DDL / WAL-cleanup below would raise "Cannot execute statement of
+        # type CREATE ... in read-only mode". Skip executor-side initialization.
+        if self._connection_manager.read_only:
+            logger.info(
+                "Read-only mode: skipping schema/index creation and WAL cleanup"
+            )
+            return
+
         try:
             # Perform WAL cleanup once with synchronization
             with self._wal_cleanup_lock:

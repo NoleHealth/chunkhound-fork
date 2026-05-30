@@ -113,6 +113,13 @@ async def run_command(args: argparse.Namespace, config: Config) -> None:
         args: Parsed command-line arguments
         config: Pre-validated configuration instance
     """
+    # Indexing is definitionally a writer; database.read_only is a serving-time
+    # (MCP) concern. Ignore it here so the SAME config a read-only MCP server uses
+    # (database.read_only=true) can still be (re)built by `chunkhound index`
+    # without the operator flipping the flag back and forth.
+    if getattr(config.database, "read_only", False):
+        config.database.read_only = False
+
     # Ignore decision check (formerly top-level 'diagnose')
     if getattr(args, "check_ignores", False):
         # Ensure this mode doesn't require embeddings either
